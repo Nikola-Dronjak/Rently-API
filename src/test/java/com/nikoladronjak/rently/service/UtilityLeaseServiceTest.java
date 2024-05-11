@@ -45,6 +45,8 @@ class UtilityLeaseServiceTest {
 
 	Rent rent;
 
+	List<Rent> rents;
+
 	List<UtilityLease> utilityLeases;
 
 	UtilityLease utilityLease1;
@@ -91,6 +93,9 @@ class UtilityLeaseServiceTest {
 
 		rent = new Rent(1, 0, utilityLeases, null);
 
+		rents = new ArrayList<Rent>();
+		rents.add(rent);
+
 		utilityLease1 = new UtilityLease(1, 50, utility1, officeSpace1, null);
 		utilityLease2 = new UtilityLease(2, 60, utility2, officeSpace1, null);
 		utilityLease3 = new UtilityLease(3, 50, utility1, officeSpace2, null);
@@ -114,6 +119,8 @@ class UtilityLeaseServiceTest {
 		owner = null;
 
 		rent = null;
+
+		rents = null;
 
 		utilityLease1 = null;
 		utilityLease2 = null;
@@ -351,7 +358,7 @@ class UtilityLeaseServiceTest {
 	@Test
 	void testDeleteAssociatedRent() {
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.of(utilityLease1));
-		when(rentRepository.findByUtilityLeasesUtilityLeaseId(1)).thenReturn(Optional.of(rent));
+		when(rentRepository.findAllByUtilityLeases_UtilityLeaseId(1)).thenReturn(rents);
 
 		ResponseEntity<?> response = utilityLeaseService.delete(1);
 
@@ -363,7 +370,7 @@ class UtilityLeaseServiceTest {
 	@Test
 	void testDelete() {
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.of(utilityLease1));
-		when(rentRepository.findByUtilityLeasesUtilityLeaseId(1)).thenReturn(Optional.empty());
+		when(rentRepository.findAllByUtilityLeases_UtilityLeaseId(1)).thenReturn(new ArrayList<Rent>());
 
 		ResponseEntity<?> response = utilityLeaseService.delete(1);
 
