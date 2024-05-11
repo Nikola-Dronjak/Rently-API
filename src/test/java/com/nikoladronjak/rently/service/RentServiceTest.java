@@ -213,7 +213,7 @@ class RentServiceTest {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.of(utilityLease1));
 		when(utilityLeaseRepository.findById(2)).thenReturn(Optional.of(utilityLease2));
-		when(rentRepository.findByLeaseLeaseId(1)).thenReturn(Optional.of(rent1));
+		when(rentRepository.findByLease_LeaseId(1)).thenReturn(Optional.of(rent1));
 
 		ResponseEntity<?> response = rentService.add(convertToDTO(rent1));
 
@@ -226,7 +226,7 @@ class RentServiceTest {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.of(utilityLease1));
 		when(utilityLeaseRepository.findById(2)).thenReturn(Optional.of(utilityLease2));
-		when(rentRepository.findByLeaseLeaseId(1)).thenReturn(Optional.empty());
+		when(rentRepository.findByLease_LeaseId(1)).thenReturn(Optional.empty());
 		when(rentRepository.save(any(Rent.class))).thenReturn(rent1);
 
 		ResponseEntity<?> response = rentService.add(convertToDTO(rent1));
@@ -274,7 +274,7 @@ class RentServiceTest {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.of(utilityLease1));
 		when(utilityLeaseRepository.findById(2)).thenReturn(Optional.of(utilityLease2));
-		when(rentRepository.findByLeaseLeaseId(1)).thenReturn(Optional.of(rent1));
+		when(rentRepository.findByLease_LeaseId(1)).thenReturn(Optional.of(rent1));
 		when(rentRepository.save(any(Rent.class))).thenThrow(new RuntimeException("This rent already exists."));
 
 		ResponseEntity<?> response = rentService.update(1, convertToDTO(rent1));
@@ -289,7 +289,7 @@ class RentServiceTest {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.of(utilityLease1));
 		when(utilityLeaseRepository.findById(2)).thenReturn(Optional.of(utilityLease2));
-		when(rentRepository.findByLeaseLeaseId(1)).thenReturn(Optional.empty());
+		when(rentRepository.findByLease_LeaseId(1)).thenReturn(Optional.empty());
 		when(rentRepository.save(any(Rent.class))).thenReturn(rent1);
 
 		ResponseEntity<?> response = rentService.update(1, convertToDTO(rent1));
