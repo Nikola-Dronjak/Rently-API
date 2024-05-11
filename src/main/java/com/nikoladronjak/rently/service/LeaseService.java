@@ -201,8 +201,8 @@ public class LeaseService {
 			if (!leaseFromDb.isPresent())
 				throw new RuntimeException("There is no lease with the given id.");
 
-			Optional<Rent> rentFromDb = rentRepository.findByLeaseLeaseId(id);
-			if (rentFromDb.isPresent())
+			List<Rent> rentsFromDb = rentRepository.findAllByLease_LeaseId(id);
+			if (!rentsFromDb.isEmpty())
 				throw new RuntimeException("You cannot delete this lease since there are rents associated with it.");
 
 			leaseRepository.deleteById(id);
