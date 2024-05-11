@@ -58,6 +58,8 @@ class LeaseServiceTest {
 
 	Rent rent;
 
+	List<Rent> rents;
+
 	Lease lease1;
 
 	Lease lease2;
@@ -112,6 +114,9 @@ class LeaseServiceTest {
 		customer = new Customer(1, "Mika", "Mikic", "mika@gmail.com", "mika123", null);
 
 		rent = new Rent(1, 400, null, lease1);
+
+		rents = new ArrayList<Rent>();
+		rents.add(rent);
 
 		lease1 = new Lease(1, 400, new GregorianCalendar(), new GregorianCalendar(2025, 12, 31), residence1, customer,
 				null);
@@ -515,7 +520,7 @@ class LeaseServiceTest {
 	@Test
 	void testDeleteAssociatedRent() {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
-		when(rentRepository.findByLeaseLeaseId(1)).thenReturn(Optional.of(rent));
+		when(rentRepository.findAllByLease_LeaseId(1)).thenReturn(rents);
 
 		ResponseEntity<?> response = leaseService.delete(1);
 
@@ -526,7 +531,7 @@ class LeaseServiceTest {
 	@Test
 	void testDelete() {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
-		when(rentRepository.findByLeaseLeaseId(1)).thenReturn(Optional.empty());
+		when(rentRepository.findAllByLease_LeaseId(1)).thenReturn(new ArrayList<Rent>());
 
 		ResponseEntity<?> response = leaseService.delete(1);
 
