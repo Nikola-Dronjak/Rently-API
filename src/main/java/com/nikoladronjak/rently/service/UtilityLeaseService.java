@@ -155,8 +155,8 @@ public class UtilityLeaseService {
 			if (!utilityLeaseFromDb.isPresent())
 				throw new RuntimeException("There is no utility lease with the given id.");
 
-			Optional<Rent> rentFromDb = rentRepository.findByUtilityLeasesUtilityLeaseId(id);
-			if (rentFromDb.isPresent())
+			List<Rent> rentsFromDb = rentRepository.findAllByUtilityLeases_UtilityLeaseId(id);
+			if (!rentsFromDb.isEmpty())
 				throw new RuntimeException(
 						"You cannot delete this utility lease since there are rents associated with it.");
 
