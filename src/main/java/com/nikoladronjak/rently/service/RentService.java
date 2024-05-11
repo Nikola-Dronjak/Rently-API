@@ -82,7 +82,7 @@ public class RentService {
 				sumOfUtilityLeaseRentalRates += utilityLeaseFromDb.get().getRentalRate();
 			}
 
-			Optional<Rent> existingRent = rentRepository.findByLeaseLeaseId(rentDTO.getLeaseId());
+			Optional<Rent> existingRent = rentRepository.findByLease_LeaseId(rentDTO.getLeaseId());
 			if (existingRent.isPresent())
 				throw new RuntimeException("This rent already exists.");
 
@@ -121,7 +121,7 @@ public class RentService {
 				sumOfUtilityLeaseRentalRates += utilityLeaseFromDb.get().getRentalRate();
 			}
 
-			Optional<Rent> existingRent = rentRepository.findByLeaseLeaseId(rentDTO.getLeaseId());
+			Optional<Rent> existingRent = rentRepository.findByLease_LeaseId(rentDTO.getLeaseId());
 			if (existingRent.isPresent()) {
 				if (existingRent.get().getRentId() != id) {
 					throw new RuntimeException("This rent already exists.");
