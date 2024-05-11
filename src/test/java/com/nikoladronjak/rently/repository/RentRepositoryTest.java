@@ -160,6 +160,26 @@ class RentRepositoryTest {
 	}
 
 	@Test
+	void testFindAllByLease_LeaseIdEmpty() {
+		rentRepository.save(rent2);
+
+		List<Rent> rents = rentRepository.findAllByLease_LeaseId(1);
+
+		assertEquals(0, rents.size());
+	}
+
+	@Test
+	void testFindAllByLease_LeaseId() {
+		rentRepository.save(rent1);
+		rentRepository.save(rent2);
+
+		List<Rent> rents = rentRepository.findAllByLease_LeaseId(1);
+
+		assertEquals(1, rents.size());
+		assertEquals(rent1, rents.get(0));
+	}
+
+	@Test
 	void testFindByIdBadId() {
 		rentRepository.save(rent1);
 
@@ -179,19 +199,19 @@ class RentRepositoryTest {
 	}
 
 	@Test
-	void testFindByLeaseLeaseIdBadId() {
+	void testFindByLease_LeaseIdBadId() {
 		rentRepository.save(rent1);
 
-		Optional<Rent> rent = rentRepository.findByLeaseLeaseId(2);
+		Optional<Rent> rent = rentRepository.findByLease_LeaseId(2);
 
 		assertTrue(rent.isEmpty());
 	}
 
 	@Test
-	void testFindByLeaseLeaseId() {
+	void testFindByLease_LeaseId() {
 		rentRepository.save(rent1);
 
-		Optional<Rent> rent = rentRepository.findByLeaseLeaseId(1);
+		Optional<Rent> rent = rentRepository.findByLease_LeaseId(1);
 
 		assertTrue(rent.isPresent());
 		assertEquals(rent1, rent.get());
