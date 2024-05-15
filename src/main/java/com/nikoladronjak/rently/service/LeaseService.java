@@ -24,27 +24,60 @@ import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.RentRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
 
+/**
+ * Represents a service class responsible for handling the business logic
+ * related to Lease entities. This class manages operations such as retrieval,
+ * adding, modification and deletion of Lease entities. Additionally, it
+ * supports conversion between Lease entities and LeaseDTOs.
+ * 
+ * @author Nikola Dronjak
+ */
 @Service
 public class LeaseService {
 
+	/**
+	 * Repository for accessing data related to residences.
+	 */
 	@Autowired
 	private ResidenceRepository residenceRepository;
 
+	/**
+	 * Repository for accessing data related to event spaces.
+	 */
 	@Autowired
 	private EventSpaceRepository eventSpaceRepository;
 
+	/**
+	 * Repository for accessing data related to office spaces.
+	 */
 	@Autowired
 	private OfficeSpaceRepository officeSpaceRepository;
 
+	/**
+	 * Repository for accessing data related to customers.
+	 */
 	@Autowired
 	private CustomerRepository customerRepository;
 
+	/**
+	 * Repository for accessing data related to rents.
+	 */
 	@Autowired
 	private RentRepository rentRepository;
 
+	/**
+	 * Repository for accessing data related to leases.
+	 */
 	@Autowired
 	private LeaseRepository leaseRepository;
 
+	/**
+	 * Retrieves all leases from the database and converts them to LeaseDTOs.
+	 * 
+	 * @return ResponseEntity containing a list of LeaseDTOs if successful, or an
+	 *         error message with HttpStatus.INTERNAL_SERVER_ERROR status (500) if
+	 *         an exception occurs.
+	 */
 	public ResponseEntity<?> getAll() {
 		try {
 			List<Lease> leases = leaseRepository.findAll();
@@ -55,6 +88,16 @@ public class LeaseService {
 		}
 	}
 
+	/**
+	 * Retrieves all leases associated with a specific propertyId from the database
+	 * and converts them to LeaseDTOs.
+	 * 
+	 * @param propertyId The id of the property for which the leases are being
+	 *                   queried.
+	 * @return ResponseEntity containing a list of LeaseDTOs if successful, or an
+	 *         error message with HttpStatus.INTERNAL_SERVER_ERROR status (500) if
+	 *         an exception occurs.
+	 */
 	public ResponseEntity<?> getAllByPropertyId(Integer propertyId) {
 		try {
 			List<Lease> leases = leaseRepository.findAllByProperty_PropertyId(propertyId);
@@ -65,6 +108,16 @@ public class LeaseService {
 		}
 	}
 
+	/**
+	 * Retrieves all leases associated with a specific customerId from the database
+	 * and converts them to LeaseDTOs.
+	 * 
+	 * @param customerId The id of the customer for which the leases are being
+	 *                   queried.
+	 * @return ResponseEntity containing a list of LeaseDTOs if successful, or an
+	 *         error message with HttpStatus.INTERNAL_SERVER_ERROR status (500) if
+	 *         an exception occurs.
+	 */
 	public ResponseEntity<?> getAllByCustomerId(Integer customerId) {
 		try {
 			List<Lease> leases = leaseRepository.findAllByCustomer_CustomerId(customerId);
@@ -75,6 +128,16 @@ public class LeaseService {
 		}
 	}
 
+	/**
+	 * Retrieves a lease from the database by the specified id and converts it to a
+	 * LeaseDTO.
+	 * 
+	 * @param id The id of the lease that is being queried.
+	 * @return ResponseEntity containing the LeaseDTO if successful, or an error
+	 *         message with HttpStatus.BAD_REQUEST status (400) if an exception
+	 *         occurs.
+	 * @throws RuntimeException if there is no lease with the given id.
+	 */
 	public ResponseEntity<?> getById(Integer id) {
 		try {
 			Optional<Lease> leaseFromDb = leaseRepository.findById(id);
@@ -88,6 +151,29 @@ public class LeaseService {
 		}
 	}
 
+	/**
+	 * Adds a new lease to the database based on the provided LeaseDTO.
+	 * 
+	 * @param leaseDTO The LeaseDTO containing the details of the lease that is
+	 *                 being added.
+	 * @return ResponseEntity containing the newly created LeaseDTO if successful,
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no property for the given
+	 *                          propertyId.</li>
+	 *                          <li>The property is not available.</li>
+	 *                          <li>There is no customer for the given
+	 *                          customerId.</li>
+	 *                          <li>The start date of the lease is after the end
+	 *                          date.</li>
+	 *                          <li>The end date of the lease is before the start
+	 *                          date.</li>
+	 *                          <li>The lease with the provided propertyId and
+	 *                          customerId already exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> add(LeaseDTO leaseDTO) {
 		try {
 			Optional<Residence> residenceFromDb = residenceRepository.findById(leaseDTO.getPropertyId());
@@ -152,6 +238,29 @@ public class LeaseService {
 		}
 	}
 
+	/**
+	 * Updates the lease information based on the provided id and LeaseDTO.
+	 * 
+	 * @param id       The id of the lease that is being updated.
+	 * @param leaseDTO The LeaseDTO containing the updated details of the lease.
+	 * @return ResponseEntity containing the updated LeaseDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no lease with the given id.</li>
+	 *                          <li>There is no property for the given
+	 *                          propertyId.</li>
+	 *                          <li>There is no customer for the given
+	 *                          customerId.</li>
+	 *                          <li>The start date of the lease is after the end
+	 *                          date.</li>
+	 *                          <li>The end date of the lease is before the start
+	 *                          date.</li>
+	 *                          <li>The lease with the provided propertyId and
+	 *                          customerId already exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> update(Integer id, LeaseDTO leaseDTO) {
 		try {
 			Optional<Lease> leaseFromDb = leaseRepository.findById(id);
@@ -195,6 +304,16 @@ public class LeaseService {
 		}
 	}
 
+	/**
+	 * Deletes the lease with the specified id.
+	 * 
+	 * @param id The id of the lease that is being deleted.
+	 * @return ResponseEntity containing the deleted LeaseDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no lease with the given id, or if there
+	 *                          are rents associated with the lease.
+	 */
 	public ResponseEntity<?> delete(Integer id) {
 		try {
 			Optional<Lease> leaseFromDb = leaseRepository.findById(id);
@@ -213,6 +332,12 @@ public class LeaseService {
 		}
 	}
 
+	/**
+	 * Converts a Lease entity to a LeaseDTO.
+	 * 
+	 * @param lease The Lease entity that is being converted.
+	 * @return The corresponding LeaseDTO.
+	 */
 	private LeaseDTO convertToDTO(Lease lease) {
 		LeaseDTO leaseDTO = new LeaseDTO();
 		leaseDTO.setPropertyId(lease.getProperty().getPropertyId());
@@ -224,6 +349,12 @@ public class LeaseService {
 		return leaseDTO;
 	}
 
+	/**
+	 * Converts a LeaseDTO to a Lease entity.
+	 * 
+	 * @param leaseDTO The LeaseDTO that is being converted.
+	 * @return The corresponding Lease entity.
+	 */
 	private Lease convertFromDTO(LeaseDTO leaseDTO) {
 		Property property = new Property();
 		property.setPropertyId(leaseDTO.getPropertyId());
