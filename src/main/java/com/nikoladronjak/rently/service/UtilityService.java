@@ -15,15 +15,36 @@ import com.nikoladronjak.rently.dto.UtilityDTO;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
 import com.nikoladronjak.rently.repository.UtilityRepository;
 
+/**
+ * Represents a service class responsible for handling the business logic
+ * related to Utility entities. This class manages operations such as retrieval,
+ * adding, modification and deletion of Utility entities. Additionally, it
+ * supports conversion between Utility entities and UtilityDTOs.
+ * 
+ * @author Nikola Dronjak
+ */
 @Service
 public class UtilityService {
 
+	/**
+	 * Repository for accessing data related to utility leases.
+	 */
 	@Autowired
 	private UtilityLeaseRepository utilityLeaseRepository;
 
+	/**
+	 * Repository for accessing data related to utilities.
+	 */
 	@Autowired
 	private UtilityRepository utilityRepository;
 
+	/**
+	 * Retrieves all utilities from the database and converts them to UtilityDTOs.
+	 * 
+	 * @return ResponseEntity containing a list of UtilityDTOs if successful, or an
+	 *         error message with HttpStatus.INTERNAL_SERVER_ERROR status (500) if
+	 *         an exception occurs.
+	 */
 	public ResponseEntity<?> getAll() {
 		try {
 			List<Utility> utilities = utilityRepository.findAll();
@@ -34,6 +55,16 @@ public class UtilityService {
 		}
 	}
 
+	/**
+	 * Retrieves a utility from the database by the specified id and converts it to
+	 * a UtilityDTO.
+	 * 
+	 * @param id The id of the utility that is being queried.
+	 * @return ResponseEntity containing the UtilityDTO if successful, or an error
+	 *         message with HttpStatus.BAD_REQUEST status (400) if an exception
+	 *         occurs.
+	 * @throws RuntimeException if there is no utility with the given id.
+	 */
 	public ResponseEntity<?> getById(Integer id) {
 		try {
 			Optional<Utility> utilityFromDb = utilityRepository.findById(id);
@@ -47,6 +78,16 @@ public class UtilityService {
 		}
 	}
 
+	/**
+	 * Adds a new utility to the database based on the provided UtilityDTO.
+	 * 
+	 * @param utilityDTO The UtilityDTO containing the details of the utility that
+	 *                   is being added.
+	 * @return ResponseEntity containing the newly created UtilityDTO if successful,
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if a utility with the provided name already exists.
+	 */
 	public ResponseEntity<?> add(UtilityDTO utilityDTO) {
 		try {
 			if (utilityRepository.findByName(utilityDTO.getName()).isPresent())
@@ -61,6 +102,18 @@ public class UtilityService {
 		}
 	}
 
+	/**
+	 * Updates the utility information based on the provided id and UtilityDTO.
+	 * 
+	 * @param id         The id of the utility that is being updated.
+	 * @param utilityDTO The UtilityDTO containing the updated details of the
+	 *                   utility.
+	 * @return ResponseEntity containing the updated UtilityDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no utility with the given id, or if a
+	 *                          utility with the provided name already exists.
+	 */
 	public ResponseEntity<?> update(Integer id, UtilityDTO utilityDTO) {
 		try {
 			Optional<Utility> utilityFromDb = utilityRepository.findById(id);
@@ -84,6 +137,17 @@ public class UtilityService {
 		}
 	}
 
+	/**
+	 * Deletes the utility with the specified id.
+	 * 
+	 * @param id The id of the utility that is being deleted.
+	 * @return ResponseEntity containing the deleted UtilityDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no utility with the given id, or if
+	 *                          there are utility leases associated with the
+	 *                          utility.
+	 */
 	public ResponseEntity<?> delete(Integer id) {
 		try {
 			Optional<Utility> utilityFromDb = utilityRepository.findById(id);
@@ -103,6 +167,12 @@ public class UtilityService {
 		}
 	}
 
+	/**
+	 * Converts a Utility entity to a UtilityDTO.
+	 * 
+	 * @param utility The Utility entity that is being converted.
+	 * @return The corresponding UtilityDTO.
+	 */
 	private UtilityDTO convertToDTO(Utility utility) {
 		UtilityDTO utilityDTO = new UtilityDTO();
 		utilityDTO.setName(utility.getName());
@@ -111,6 +181,12 @@ public class UtilityService {
 		return utilityDTO;
 	}
 
+	/**
+	 * Converts a UtilityDTO to a Utility entity.
+	 * 
+	 * @param utilityDTO The UtilityDTO that is being converted.
+	 * @return The corresponding Utility entity.
+	 */
 	private Utility convertFromDTO(UtilityDTO utilityDTO) {
 		Utility utility = new Utility();
 		utility.setName(utilityDTO.getName());
