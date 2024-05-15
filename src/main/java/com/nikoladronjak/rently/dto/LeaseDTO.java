@@ -8,21 +8,62 @@ import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Represents a data transfer object (DTO) for the Lease entity. This class is
+ * used for transferring lease data between the different layers of the
+ * application (LeaseRepository, LeaseService and LeaseController). It plays a
+ * vital role in the creation of requests as well as the displaying of
+ * responses.
+ * 
+ * The LeaseDTO class contains the propertyId, customerId, monthly rental rate,
+ * start date of the lease and end date of the lease.
+ * 
+ * @author Nikola Dronjak
+ */
 public class LeaseDTO {
 
+	/**
+	 * Represents the id of the property that is being leased (Integer).
+	 * 
+	 * The id of the property cannot be null.
+	 */
 	@NotNull(message = "You have to specify the property which is being leased.")
 	private Integer propertyId;
 
+	/**
+	 * Represents the id of the customer who is leasing the property as a tenant
+	 * (Integer).
+	 * 
+	 * The id of the customer cannot be null.
+	 */
 	@NotNull(message = "You have to specify the customer who is leasing the property.")
 	private Integer customerId;
 
+	/**
+	 * Represents the monthly rental rate of the lease (Double).
+	 * 
+	 * The value of this field is related to the rentalRate field in the PropertyDTO
+	 * class.
+	 */
 	private Double rentalRate;
 
+	/**
+	 * Represents the start date of the lease (GregorianCalendar).
+	 * 
+	 * The start date cannot be null, has to be in the present or the future and has
+	 * to be in the following format: yyyy-mm-dd.
+	 */
 	@NotNull(message = "The start date of the lease is required.")
 	@FutureOrPresent(message = "The start date of the lease has to be in the present or in the future.")
 	@DateTimeFormat(pattern = "yyyy-mm-dd")
 	private GregorianCalendar startDate;
 
+	/**
+	 * Represents the end date of the lease (GregorianCalendar).
+	 * 
+	 * The end date cannot be null, has to be in the present or the future and has
+	 * to be in the following format: yyyy-mm-dd.
+	 */
 	@NotNull(message = "The end date of the lease is required.")
 	@FutureOrPresent(message = "The end date of the lease has to be in the present or in the future.")
 	@DateTimeFormat(pattern = "yyyy-mm-dd")
