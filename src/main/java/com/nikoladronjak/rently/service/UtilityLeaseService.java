@@ -22,24 +22,56 @@ import com.nikoladronjak.rently.repository.RentRepository;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
 import com.nikoladronjak.rently.repository.UtilityRepository;
 
+/**
+ * Represents a service class responsible for handling the business logic
+ * related to UtilityLease entities. This class manages operations such as
+ * retrieval, adding, modification and deletion of UtilityLease entities.
+ * Additionally, it supports conversion between UtilityLease entities and
+ * UtilityLeaseDTOs.
+ * 
+ * @author Nikola Dronjak
+ */
 @Service
 public class UtilityLeaseService {
 
+	/**
+	 * Repository for accessing data related to utilities.
+	 */
 	@Autowired
 	private UtilityRepository utilityRepository;
 
+	/**
+	 * Repository for accessing data related to event spaces.
+	 */
 	@Autowired
 	private EventSpaceRepository eventSpaceRepository;
 
+	/**
+	 * Repository for accessing data related to office spaces.
+	 */
 	@Autowired
 	private OfficeSpaceRepository officeSpaceRepository;
 
+	/**
+	 * Repository for accessing data related to rents.
+	 */
 	@Autowired
 	private RentRepository rentRepository;
 
+	/**
+	 * Repository for accessing data related to utility leases.
+	 */
 	@Autowired
 	private UtilityLeaseRepository utilityLeaseRepository;
 
+	/**
+	 * Retrieves all utility leases from the database and converts them to
+	 * UtilityLeaseDTOs.
+	 * 
+	 * @return ResponseEntity containing a list of UtilityLeaseDTOs if successful,
+	 *         or an error message with HttpStatus.INTERNAL_SERVER_ERROR status
+	 *         (500) if an exception occurs.
+	 */
 	public ResponseEntity<?> getAll() {
 		try {
 			List<UtilityLease> utilityLeases = utilityLeaseRepository.findAll();
@@ -51,6 +83,16 @@ public class UtilityLeaseService {
 		}
 	}
 
+	/**
+	 * Retrieves all utility leases associated with a specific utilityId from the
+	 * database and converts them to UtilityLeaseDTOs.
+	 * 
+	 * @param utilityId The id of the utility for which the utility leases are being
+	 *                  queried.
+	 * @return ResponseEntity containing a list of UtilityLeaseDTOs if successful,
+	 *         or an error message with HttpStatus.INTERNAL_SERVER_ERROR status
+	 *         (500) if an exception occurs.
+	 */
 	public ResponseEntity<?> getAllByUtilityId(Integer utilityId) {
 		try {
 			List<UtilityLease> utilityLeases = utilityLeaseRepository.findAllByUtility_UtilityId(utilityId);
@@ -62,6 +104,16 @@ public class UtilityLeaseService {
 		}
 	}
 
+	/**
+	 * Retrieves all utility leases associated with a specific propertyId from the
+	 * database and converts them to UtilityLeaseDTOs.
+	 * 
+	 * @param propertyId The id of the property for which the utility leases are
+	 *                   being queried.
+	 * @return ResponseEntity containing a list of UtilityLeaseDTOs if successful,
+	 *         or an error message with HttpStatus.INTERNAL_SERVER_ERROR status
+	 *         (500) if an exception occurs.
+	 */
 	public ResponseEntity<?> getAllByPropertyId(Integer propertyId) {
 		try {
 			List<UtilityLease> utilityLeases = utilityLeaseRepository.findAllByProperty_PropertyId(propertyId);
@@ -73,6 +125,16 @@ public class UtilityLeaseService {
 		}
 	}
 
+	/**
+	 * Retrieves a utility lease from the database by the specified id and converts
+	 * it to a UtilityLeaseDTO.
+	 * 
+	 * @param id The id of the utility lease that is being queried.
+	 * @return ResponseEntity containing the UtilityLeaseDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no utility lease with the given id.
+	 */
 	public ResponseEntity<?> getById(Integer id) {
 		try {
 			Optional<UtilityLease> utilityLeaseFromDb = utilityLeaseRepository.findById(id);
@@ -86,6 +148,25 @@ public class UtilityLeaseService {
 		}
 	}
 
+	/**
+	 * Adds a new utility lease to the database based on the provided
+	 * UtilityLeaseDTO.
+	 * 
+	 * @param utilityLeaseDTO The UtilityLeaseDTO containing the details of the
+	 *                        utility lease that is being added.
+	 * @return ResponseEntity containing the newly created UtilityLeaseDTO if
+	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
+	 *         (400) if an exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no utility for the given
+	 *                          utilityId.</li>
+	 *                          <li>The property is not an event space or a office
+	 *                          space</li>
+	 *                          <li>The utility lease with the provided utilityId
+	 *                          and propertyId already exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> add(UtilityLeaseDTO utilityLeaseDTO) {
 		try {
 
@@ -114,6 +195,27 @@ public class UtilityLeaseService {
 		}
 	}
 
+	/**
+	 * Updates the utility lease information based on the provided id and
+	 * UtilityLeaseDTO.
+	 * 
+	 * @param id              The id of the utility lease that is being updated.
+	 * @param utilityLeaseDTO The UtilityLeaseDTO containing the updated details of
+	 *                        the utility lease.
+	 * @return ResponseEntity containing the updated UtilityLeaseDTO if successful,
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no utility lease for the given id.</li>
+	 *                          <li>There is no utility for the given
+	 *                          utilityId.</li>
+	 *                          <li>The property is not an event space or a office
+	 *                          space</li>
+	 *                          <li>The utility lease with the provided utilityId
+	 *                          and propertyId already exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> update(Integer id, UtilityLeaseDTO utilityLeaseDTO) {
 		try {
 			Optional<UtilityLease> utilityLeaseFromDb = utilityLeaseRepository.findById(id);
@@ -149,6 +251,17 @@ public class UtilityLeaseService {
 		}
 	}
 
+	/**
+	 * Deletes the utility lease with the specified id.
+	 * 
+	 * @param id The id of the utility lease that is being deleted.
+	 * @return ResponseEntity containing the deleted UtilityLeaseDTO if successful,
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no utility lease with the given id, or
+	 *                          if there are rents associated with the utility
+	 *                          lease.
+	 */
 	public ResponseEntity<?> delete(Integer id) {
 		try {
 			Optional<UtilityLease> utilityLeaseFromDb = utilityLeaseRepository.findById(id);
@@ -168,6 +281,12 @@ public class UtilityLeaseService {
 		}
 	}
 
+	/**
+	 * Converts a UtilityLease entity to a UtilityLeaseDTO.
+	 * 
+	 * @param utilityLease The UtilityLease entity that is being converted.
+	 * @return The corresponding UtilityLeaseDTO.
+	 */
 	private UtilityLeaseDTO convertToDTO(UtilityLease utilityLease) {
 		UtilityLeaseDTO utilityLeaseDTO = new UtilityLeaseDTO();
 		utilityLeaseDTO.setUtilityId(utilityLease.getUtility().getUtilityId());
@@ -177,6 +296,12 @@ public class UtilityLeaseService {
 		return utilityLeaseDTO;
 	}
 
+	/**
+	 * Converts a UtilityLeaseDTO to a UtilityLease entity.
+	 * 
+	 * @param utilityLeaseDTO The UtilityLeaseDTO that is being converted.
+	 * @return The corresponding UtilityLease entity.
+	 */
 	private UtilityLease convertFromDTO(UtilityLeaseDTO utilityLeaseDTO) {
 		Utility utility = new Utility();
 		utility.setUtilityId(utilityLeaseDTO.getUtilityId());
