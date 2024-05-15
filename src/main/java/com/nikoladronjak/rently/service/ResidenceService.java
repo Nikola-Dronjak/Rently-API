@@ -18,24 +18,56 @@ import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.OwnerRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
 
+/**
+ * Represents a service class responsible for handling the business logic
+ * related to Residence entities. This class manages operations such as
+ * retrieval, adding, modification and deletion of Residence entities.
+ * Additionally, it supports conversion between Residence entities and
+ * ResidenceDTOs.
+ * 
+ * @author Nikola Dronjak
+ */
 @Service
 public class ResidenceService {
 
+	/**
+	 * Repository for accessing data related to owners.
+	 */
 	@Autowired
 	private OwnerRepository ownerRepository;
 
+	/**
+	 * Repository for accessing data related to event spaces.
+	 */
 	@Autowired
 	private EventSpaceRepository eventSpaceRepository;
 
+	/**
+	 * Repository for accessing data related to office spaces.
+	 */
 	@Autowired
 	private OfficeSpaceRepository officeSpaceRepository;
 
+	/**
+	 * Repository for accessing data related to leases.
+	 */
 	@Autowired
 	private LeaseRepository leaseRepository;
 
+	/**
+	 * Repository for accessing data related to residences.
+	 */
 	@Autowired
 	private ResidenceRepository residenceRepository;
 
+	/**
+	 * Retrieves all residences from the database and converts them to
+	 * ResidenceDTOs.
+	 * 
+	 * @return ResponseEntity containing a list of ResidenceDTOs if successful, or
+	 *         an error message with HttpStatus.INTERNAL_SERVER_ERROR status (500)
+	 *         if an exception occurs.
+	 */
 	public ResponseEntity<?> getAll() {
 		try {
 			List<Residence> residences = residenceRepository.findAll();
@@ -46,6 +78,16 @@ public class ResidenceService {
 		}
 	}
 
+	/**
+	 * Retrieves a residence from the database by the specified id and converts it
+	 * to a ResidenceDTO.
+	 * 
+	 * @param id The id of the residence that is being queried.
+	 * @return ResponseEntity containing the ResidenceDTO if successful, or an error
+	 *         message with HttpStatus.BAD_REQUEST status (400) if an exception
+	 *         occurs.
+	 * @throws RuntimeException if there is no residence with the given id.
+	 */
 	public ResponseEntity<?> getById(Integer id) {
 		try {
 			Optional<Residence> residenceFromDb = residenceRepository.findById(id);
@@ -59,6 +101,17 @@ public class ResidenceService {
 		}
 	}
 
+	/**
+	 * Adds a new residence to the database based on the provided ResidenceDTO.
+	 * 
+	 * @param residenceDTO The ResidenceDTO containing the details of the residence
+	 *                     that is being added.
+	 * @return ResponseEntity containing the newly created ResidenceDTO if
+	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
+	 *         (400) if an exception occurs.
+	 * @throws RuntimeException if there is no owner with the given ownerId, or if a
+	 *                          property with the provided address already exists.
+	 */
 	public ResponseEntity<?> add(ResidenceDTO residenceDTO) {
 		try {
 			if (ownerRepository.findById(residenceDTO.getOwnerId()).isEmpty())
@@ -78,6 +131,23 @@ public class ResidenceService {
 		}
 	}
 
+	/**
+	 * Updates the residence information based on the provided id and ResidenceDTO.
+	 * 
+	 * @param id           The id of the residence that is being updated.
+	 * @param residenceDTO The ResidenceDTO containing the updated details of the
+	 *                     residence.
+	 * @return ResponseEntity containing the updated ResidenceDTO if successful, or
+	 *         an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no residence with the given id.</li>
+	 *                          <li>There is no owner with the given ownerId</li>
+	 *                          <li>The property with the provided address already
+	 *                          exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> update(Integer id, ResidenceDTO residenceDTO) {
 		try {
 			Optional<Residence> residenceFromDb = residenceRepository.findById(id);
@@ -105,6 +175,16 @@ public class ResidenceService {
 		}
 	}
 
+	/**
+	 * Deletes the residence with the specified id.
+	 * 
+	 * @param id The id of the residence that is being deleted.
+	 * @return ResponseEntity containing the deleted ResidenceDTO if successful, or
+	 *         an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no residence with the given id, or if
+	 *                          there are leases associated with the residence.
+	 */
 	public ResponseEntity<?> delete(Integer id) {
 		try {
 			Optional<Residence> residenceFromDb = residenceRepository.findById(id);
@@ -124,6 +204,12 @@ public class ResidenceService {
 		}
 	}
 
+	/**
+	 * Converts a Residence entity to a ResidenceDTO.
+	 * 
+	 * @param residence The Residence entity that is being converted.
+	 * @return The corresponding ResidenceDTO.
+	 */
 	private ResidenceDTO convertToDTO(Residence residence) {
 		ResidenceDTO residenceDTO = new ResidenceDTO();
 		residenceDTO.setPropertyId(residence.getPropertyId());
@@ -145,6 +231,12 @@ public class ResidenceService {
 		return residenceDTO;
 	}
 
+	/**
+	 * Converts a ResidenceDTO to a Residence entity.
+	 * 
+	 * @param residenceDTO The ResidenceDTO that is being converted.
+	 * @return The corresponding Residence entity.
+	 */
 	private Residence convertFromDTO(ResidenceDTO residenceDTO) {
 		Residence residence = new Residence();
 		if (residenceDTO.getPropertyId() != null) {
