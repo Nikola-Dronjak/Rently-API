@@ -19,21 +19,48 @@ import com.nikoladronjak.rently.repository.RentRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
 
+/**
+ * Represents a service class responsible for handling the business logic
+ * related to Rent entities. This class manages operations such as retrieval,
+ * adding, modification and deletion of Rent entities. Additionally, it supports
+ * conversion between Rent entities and RentDTOs.
+ * 
+ * @author Nikola Dronjak
+ */
 @Service
 public class RentService {
 
+	/**
+	 * Repository for accessing data related to residences.
+	 */
 	@Autowired
 	private ResidenceRepository residenceRepository;
 
+	/**
+	 * Repository for accessing data related to leases.
+	 */
 	@Autowired
 	private LeaseRepository leaseRepository;
 
+	/**
+	 * Repository for accessing data related to utility leases.
+	 */
 	@Autowired
 	private UtilityLeaseRepository utilityLeaseRepository;
 
+	/**
+	 * Repository for accessing data related to rents.
+	 */
 	@Autowired
 	private RentRepository rentRepository;
 
+	/**
+	 * Retrieves all rents from the database and converts them to RentDTOs.
+	 * 
+	 * @return ResponseEntity containing a list of RentDTOs if successful, or an
+	 *         error message with HttpStatus.INTERNAL_SERVER_ERROR status (500) if
+	 *         an exception occurs.
+	 */
 	public ResponseEntity<?> getAll() {
 		try {
 			List<Rent> rents = rentRepository.findAll();
@@ -44,6 +71,16 @@ public class RentService {
 		}
 	}
 
+	/**
+	 * Retrieves a rent from the database by the specified id and converts it to a
+	 * RentDTO.
+	 * 
+	 * @param id The id of the rent that is being queried.
+	 * @return ResponseEntity containing the RentDTO if successful, or an error
+	 *         message with HttpStatus.BAD_REQUEST status (400) if an exception
+	 *         occurs.
+	 * @throws RuntimeException if there is no rent with the given id.
+	 */
 	public ResponseEntity<?> getById(Integer id) {
 		try {
 			Optional<Rent> rentFromDb = rentRepository.findById(id);
@@ -57,6 +94,23 @@ public class RentService {
 		}
 	}
 
+	/**
+	 * Adds a new rent to the database based on the provided RentDTO.
+	 * 
+	 * @param rentDTO The RentDTO containing the details of the rent that is being
+	 *                added.
+	 * @return ResponseEntity containing the newly created RentDTO if successful, or
+	 *         an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no lease for the given leaseId.</li>
+	 *                          <li>There is no utility lease for the given
+	 *                          utilityLeaseId.</li>
+	 *                          <li>The Rent with the provided leaseId already
+	 *                          exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> add(RentDTO rentDTO) {
 		try {
 			Optional<Lease> leaseFromDb = leaseRepository.findById(rentDTO.getLeaseId());
@@ -102,6 +156,24 @@ public class RentService {
 		}
 	}
 
+	/**
+	 * Updates the rent information based on the provided id and RentDTO.
+	 * 
+	 * @param id      The id of the rent that is being updated.
+	 * @param rentDTO The RentDTO containing the updated details of the rent.
+	 * @return ResponseEntity containing the updated RentDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no rent for the given id.</li>
+	 *                          <li>There is no lease for the given leaseId.</li>
+	 *                          <li>There is no utility lease for the given
+	 *                          utilityLeaseId.</li>
+	 *                          <li>The Rent with the provided leaseId already
+	 *                          exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> update(Integer id, RentDTO rentDTO) {
 		try {
 			Optional<Rent> rentFromDb = rentRepository.findById(id);
@@ -149,6 +221,15 @@ public class RentService {
 		}
 	}
 
+	/**
+	 * Deletes the rent with the specified id.
+	 * 
+	 * @param id The id of the rent that is being deleted.
+	 * @return ResponseEntity containing the deleted RentDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no rent with the given id.
+	 */
 	public ResponseEntity<?> delete(Integer id) {
 		try {
 			Optional<Rent> rentFromDb = rentRepository.findById(id);
@@ -167,6 +248,12 @@ public class RentService {
 		}
 	}
 
+	/**
+	 * Converts a Rent entity to a RentDTO.
+	 * 
+	 * @param rent The Rent entity that is being converted.
+	 * @return The corresponding RentDTO.
+	 */
 	private RentDTO convertToDTO(Rent rent) {
 		List<Integer> utilityLeaseIds = rent.getUtilityLeases().stream()
 				.map(utilityLease -> utilityLease.getUtilityLeaseId()).collect(Collectors.toList());
@@ -179,6 +266,12 @@ public class RentService {
 		return rentDTO;
 	}
 
+	/**
+	 * Converts a RentDTO to a Rent entity.
+	 * 
+	 * @param rentDTO The RentDTO that is being converted.
+	 * @return The corresponding Rent entity.
+	 */
 	private Rent convertFromDTO(RentDTO rentDTO) {
 		Lease lease = new Lease();
 		lease.setLeaseId(rentDTO.getLeaseId());
