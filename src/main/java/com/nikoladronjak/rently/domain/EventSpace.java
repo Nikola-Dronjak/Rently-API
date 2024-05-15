@@ -6,17 +6,53 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
 
+/**
+ * Represents a domain class for storing information about a EventSpace entity.
+ * This class is mapped to the "EventSpaces" table in the database using JPA
+ * annotations. The primary key of this table is "propertyId". Since
+ * "propertyId" is inherited from the Property entity it also represents a
+ * foreign key that references the "Properties" table.
+ * 
+ * The EventSpace entity contains its capacity, a hasKitchen flag, a hasBar flag
+ * and a list of utility leases associated with the EventSpace entity.
+ * 
+ * This entity is a child class of the Property class. This means that it also
+ * contains all the fields of the Property class.
+ * 
+ * @author Nikola Dronjak
+ */
 @Entity
 @Table(name = "EventSpaces")
 @PrimaryKeyJoinColumn(name = "propertyId")
 public class EventSpace extends Property {
 
+	/**
+	 * Represents the number of people that the event space can hold (int).
+	 */
 	private int capacity;
 
+	/**
+	 * Indicates whether the event space has a kitchen (boolean).
+	 * <ul>
+	 * <li>True - The event space has a kitchen.</li>
+	 * <li>False - The event space doesn't have a kitchen.</li>
+	 * </ul>
+	 */
 	private boolean hasKitchen;
 
+	/**
+	 * Indicates whether the event space has a bar (boolean).
+	 * <ul>
+	 * <li>True - The event space has a bar.</li>
+	 * <li>False - The event space doesn't have a bar.</li>
+	 * </ul>
+	 */
 	private boolean hasBar;
 
+	/**
+	 * Represents the list of utility leases with which the event space is
+	 * associated (List&lt;UtilityLease&gt;).
+	 */
 	@OneToMany(mappedBy = "property")
 	private List<UtilityLease> utilityLeases;
 
