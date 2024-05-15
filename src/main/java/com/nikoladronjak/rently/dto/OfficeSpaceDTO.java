@@ -6,12 +6,34 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+/**
+ * Represents a data transfer object (DTO) for the OfficeSpace entity. This
+ * class is used for transferring office space data between the different layers
+ * of the application (OfficeSpaceRepository, OfficeSpaceService and
+ * OfficeSpaceController). It plays a vital role in the creation of requests as
+ * well as the displaying of responses.
+ * 
+ * The OfficeSpaceDTO class contains the capacity and ownerId.
+ * 
+ * @author Nikola Dronjak
+ */
 public class OfficeSpaceDTO extends PropertyDTO {
 
+	/**
+	 * Represents the number of people that the office space can hold (Integer).
+	 * 
+	 * The capacity cannot be null and it has to be a positive value (greater than
+	 * 0).
+	 */
 	@NotNull(message = "The size of the office space is required.")
 	@Positive(message = "The size of the office space has to be a positive value.")
 	private Integer capacity;
 
+	/**
+	 * Represents the id of the office space's owner (Integer).
+	 * 
+	 * The id of the owner cannot be null.
+	 */
 	@NotNull(message = "You have to specify the owner of the office space.")
 	private Integer ownerId;
 
