@@ -24,41 +24,96 @@ import com.nikoladronjak.rently.service.RentService;
 
 import jakarta.validation.Valid;
 
+/**
+ * Represents a controller class for handling HTTP requests related to Rent
+ * entities. This class provides end-points for retrieving, adding, updating,
+ * and deleting Rent entities. It also handles validation errors by returning
+ * appropriate responses.
+ * 
+ * @author Nikola Dronjak
+ */
 @RestController
 @RequestMapping("/api/rents")
 public class RentController {
 
+	/**
+	 * Service for handling operations related to Rent entities.
+	 */
 	@Autowired
 	private RentService rentService;
 
+	/**
+	 * Retrieves all rents. Route: HTTP GET /api/rents
+	 *
+	 * @return ResponseEntity with HTTP status and response body containing a list
+	 *         of rents or an error message.
+	 */
 	@GetMapping
 	public ResponseEntity<?> getAllRents() {
 		return rentService.getAll();
 	}
 
+	/**
+	 * Retrieves a rent by its id. Route: HTTP GET /api/rents/id
+	 *
+	 * @param id The id of the rent thats is being queried.
+	 * @return ResponseEntity with HTTP status and response body containing the rent
+	 *         if found, or an error message.
+	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getRentById(@PathVariable Integer id) {
 		return rentService.getById(id);
 	}
 
+	/**
+	 * Adds a new rent. Route: HTTP POST /api/rents
+	 *
+	 * @param rentDTO The RentDTO representing the rent that is being added.
+	 * @return ResponseEntity with HTTP status and response body containing the
+	 *         added rent if successful, or an error message.
+	 * @throws MethodArgumentNotValidException if the rentDTO is not valid.
+	 */
 	@PostMapping
 	public ResponseEntity<?> addRent(@Valid @RequestBody RentDTO rentDTO) {
 		return rentService.add(rentDTO);
 	}
 
+	/**
+	 * Updates an existing rent. Route: HTTP PUT /api/rents/id
+	 *
+	 * @param id      The id of the rent that is being updated.
+	 * @param rentDTO The RentDTO representing the updated rent information.
+	 * @return ResponseEntity with HTTP status and response body containing the
+	 *         updated rent if successful, or an error message.
+	 * @throws MethodArgumentNotValidException if the rentDTO is not valid.
+	 */
 	@PutMapping("/{id}")
 	ResponseEntity<?> updateRent(@PathVariable Integer id, @Valid @RequestBody RentDTO rentDTO) {
 		return rentService.update(id, rentDTO);
 	}
 
+	/**
+	 * Deletes a rent by its id. Route: HTTP DELETE /api/rents/id
+	 *
+	 * @param id The id of the rent that is being deleted.
+	 * @return ResponseEntity with HTTP status and response body containing the
+	 *         deleted rent if successful, or an error message.
+	 */
 	@DeleteMapping("/{id}")
 	ResponseEntity<?> deleteRent(@PathVariable Integer id) {
 		return rentService.delete(id);
 	}
 
+	/**
+	 * Creates custom error messages for validation exceptions.
+	 *
+	 * @param e MethodArgumentNotValidException thrown during validation.
+	 * @return ResponseEntity with HTTP status and response body containing
+	 *         validation error details.
+	 */
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException e) {
+	private ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException e) {
 		Map<String, String> errors = new HashMap<String, String>();
 		e.getBindingResult().getAllErrors().forEach((error) -> {
 			String fieldName = ((FieldError) error).getField();
