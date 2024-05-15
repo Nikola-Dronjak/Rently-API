@@ -8,25 +8,84 @@ import com.nikoladronjak.rently.domain.HeatingType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Represents a data transfer object (DTO) for the Residence entity. This class
+ * is used for transferring residence data between the different layers of the
+ * application (ResidenceRepository, ResidenceService and ResidenceController).
+ * It plays a vital role in the creation of requests as well as the displaying
+ * of responses.
+ * 
+ * The ResidenceDTO class contains the number of bedrooms, number of bathrooms,
+ * heating type, isPetFriendly flag, isFurnished flag and ownerId.
+ * 
+ * @author Nikola Dronjak
+ */
 public class ResidenceDTO extends PropertyDTO {
 
+	/**
+	 * Represents the number of bedrooms in the residence (Integer).
+	 * 
+	 * The number of bedrooms cannot be null and there has to be at least one
+	 * bedroom in the residence.
+	 */
 	@NotNull(message = "The number of bedrooms for the residence is required.")
 	@Min(value = 1, message = "The residence has to have at least 1 bedroom.")
 	private Integer numberOfBedrooms;
 
+	/**
+	 * Represents the number of bathrooms in the residence (Integer).
+	 * 
+	 * The number of bathrooms in the residence cannot be null and there has to be
+	 * at least one bathroom in the residence.
+	 */
 	@NotNull(message = "The number of bathrooms for the residence is required.")
 	@Min(value = 1, message = "The residence has to have at least 1 bathroom.")
 	private Integer numberOfBathrooms;
 
+	/**
+	 * Represents the heating type of the residence (HeatingType). There are 4
+	 * different types of heating:
+	 * <ul>
+	 * <li>Central heating</li>
+	 * <li>Gas heating</li>
+	 * <li>Electrical heating</li>
+	 * <li>Wood heating</li>
+	 * </ul>
+	 * 
+	 * The heating type cannot be null.
+	 */
 	@NotNull(message = "The heating type of the residence is required.")
 	private HeatingType heatingType;
 
+	/**
+	 * Indicates whether the residence is pet-friendly (Boolean).
+	 * <ul>
+	 * <li>True - The residence is pet-friendly.</li>
+	 * <li>False - The residence is not pet-friendly.</li>
+	 * </ul>
+	 * 
+	 * The isPetFriendly flag cannot be null.
+	 */
 	@NotNull(message = "You have to specify whether the property is pet friendly or not.")
 	private Boolean isPetFriendly;
 
+	/**
+	 * Indicates whether the residence is furnished (Boolean).
+	 * <ul>
+	 * <li>True - The residence is furnished.</li>
+	 * <li>False - The residence is not furnished.</li>
+	 * </ul>
+	 * 
+	 * The isFurnished flag cannot be null.
+	 */
 	@NotNull(message = "You have to specify whether the property is furnished or not.")
 	private Boolean isFurnished;
 
+	/**
+	 * Represents the id of the residence's owner (Integer).
+	 * 
+	 * The id of the owner cannot be null.
+	 */
 	@NotNull(message = "You have to specify the owner of the residence.")
 	private Integer ownerId;
 
