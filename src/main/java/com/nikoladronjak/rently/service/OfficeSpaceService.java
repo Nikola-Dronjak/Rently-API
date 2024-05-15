@@ -20,27 +20,62 @@ import com.nikoladronjak.rently.repository.OwnerRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
 
+/**
+ * Represents a service class responsible for handling the business logic
+ * related to OfficeSpace entities. This class manages operations such as
+ * retrieval, adding, modification and deletion of OfficeSpace entities.
+ * Additionally, it supports conversion between OfficeSpace entities and
+ * OfficeSpaceDTOs.
+ * 
+ * @author Nikola Dronjak
+ */
 @Service
 public class OfficeSpaceService {
 
+	/**
+	 * Repository for accessing data related to owners.
+	 */
 	@Autowired
 	private OwnerRepository ownerRepository;
 
+	/**
+	 * Repository for accessing data related to residences.
+	 */
 	@Autowired
 	private ResidenceRepository residenceRepository;
 
+	/**
+	 * Repository for accessing data related to event spaces.
+	 */
 	@Autowired
 	private EventSpaceRepository eventSpaceRepository;
 
+	/**
+	 * Repository for accessing data related to leases.
+	 */
 	@Autowired
 	private LeaseRepository leaseRepository;
 
+	/**
+	 * Repository for accessing data related to utility leases.
+	 */
 	@Autowired
 	private UtilityLeaseRepository utilityLeaseRepository;
 
+	/**
+	 * Repository for accessing data related to office spaces.
+	 */
 	@Autowired
 	private OfficeSpaceRepository officeSpaceRepository;
 
+	/**
+	 * Retrieves all office spaces from the database and converts them to
+	 * OfficeSpaceDTOs.
+	 * 
+	 * @return ResponseEntity containing a list of OfficeSpaceDTOs if successful, or
+	 *         an error message with HttpStatus.INTERNAL_SERVER_ERROR status (500)
+	 *         if an exception occurs.
+	 */
 	public ResponseEntity<?> getAll() {
 		try {
 			List<OfficeSpace> officeSpaces = officeSpaceRepository.findAll();
@@ -52,6 +87,16 @@ public class OfficeSpaceService {
 		}
 	}
 
+	/**
+	 * Retrieves a office space from the database by the specified id and converts
+	 * it to an OfficeSpaceDTO.
+	 * 
+	 * @param id The id of the office space that is being queried.
+	 * @return ResponseEntity containing the OfficeSpaceDTO if successful, or an
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if there is no office space with the given id.
+	 */
 	public ResponseEntity<?> getById(Integer id) {
 		try {
 			Optional<OfficeSpace> officeSpaceFromDb = officeSpaceRepository.findById(id);
@@ -65,6 +110,17 @@ public class OfficeSpaceService {
 		}
 	}
 
+	/**
+	 * Adds a new office space to the database based on the provided OfficeSpaceDTO.
+	 * 
+	 * @param officeSpaceDTO The OfficeSpaceDTO containing the details of the office
+	 *                       space that is being added.
+	 * @return ResponseEntity containing the newly created OfficeSpaceDTO if
+	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
+	 *         (400) if an exception occurs.
+	 * @throws RuntimeException if there is no owner with the given ownerId, or if a
+	 *                          property with the provided address already exists.
+	 */
 	public ResponseEntity<?> add(OfficeSpaceDTO officeSpaceDTO) {
 		try {
 			if (ownerRepository.findById(officeSpaceDTO.getOwnerId()).isEmpty())
@@ -84,6 +140,24 @@ public class OfficeSpaceService {
 		}
 	}
 
+	/**
+	 * Updates the office space information based on the provided id and
+	 * OfficeSpaceDTO.
+	 * 
+	 * @param id             The id of the office space that is being updated.
+	 * @param officeSpaceDTO The OfficeSpaceDTO containing the updated details of
+	 *                       the office space.
+	 * @return ResponseEntity containing the updated OfficeSpaceDTO if successful,
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no office space with the given id.</li>
+	 *                          <li>There is no owner with the given ownerId</li>
+	 *                          <li>The property with the provided address already
+	 *                          exists.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> update(Integer id, OfficeSpaceDTO officeSpaceDTO) {
 		try {
 			Optional<OfficeSpace> officeSpaceFromDb = officeSpaceRepository.findById(id);
@@ -111,6 +185,22 @@ public class OfficeSpaceService {
 		}
 	}
 
+	/**
+	 * Deletes the office space with the specified id.
+	 * 
+	 * @param id The id of the office space that is being deleted.
+	 * @return ResponseEntity containing the deleted OfficeSpaceDTO if successful,
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
+	 *         exception occurs.
+	 * @throws RuntimeException if:
+	 *                          <ul>
+	 *                          <li>There is no office space with the given id.</li>
+	 *                          <li>There are leases associated with the office
+	 *                          space.</li>
+	 *                          <li>There are utility leases associated with the
+	 *                          office space.</li>
+	 *                          </ul>
+	 */
 	public ResponseEntity<?> delete(Integer id) {
 		try {
 			Optional<OfficeSpace> officeSpaceFromDb = officeSpaceRepository.findById(id);
@@ -135,6 +225,12 @@ public class OfficeSpaceService {
 		}
 	}
 
+	/**
+	 * Converts a OfficeSpace entity to a OfficeSpaceDTO.
+	 * 
+	 * @param officeSpace The OfficeSpace entity that is being converted.
+	 * @return The corresponding OfficeSpaceDTO.
+	 */
 	private OfficeSpaceDTO convertToDTO(OfficeSpace officeSpace) {
 		OfficeSpaceDTO officeSpaceDTO = new OfficeSpaceDTO();
 		officeSpaceDTO.setPropertyId(officeSpace.getPropertyId());
@@ -152,6 +248,12 @@ public class OfficeSpaceService {
 		return officeSpaceDTO;
 	}
 
+	/**
+	 * Converts a OfficeSpaceDTO to a OfficeSpace entity.
+	 * 
+	 * @param officeSpaceDTO The OfficeSpaceDTO that is being converted.
+	 * @return The corresponding OfficeSpace entity.
+	 */
 	private OfficeSpace convertFromDTO(OfficeSpaceDTO officeSpaceDTO) {
 		OfficeSpace officeSpace = new OfficeSpace();
 		if (officeSpaceDTO.getPropertyId() != null) {
