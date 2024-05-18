@@ -1,10 +1,11 @@
 package com.nikoladronjak.rently.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a Property entity.
@@ -41,56 +42,93 @@ public class Property {
 
 	/**
 	 * Represents the name of the property (String).
+	 * 
+	 * The name cannot be null and it has to have at least 5 characters.
 	 */
+	@NotBlank(message = "The name of the property is required.")
+	@Size(min = 5, message = "The name of the property has to have at least 5 characters.")
 	private String name;
 
 	/**
 	 * Represents the street address of the property (String). The street address
 	 * has to be unique.
+	 * 
+	 * The street address cannot be null and it has to have at least 5 characters.
 	 */
+	@NotBlank(message = "The address of the property is required.")
+	@Size(min = 5, message = "The address of the property has to have at least 5 characters.")
 	@Column(unique = true)
 	private String address;
 
 	/**
 	 * Represents the description of the property (String).
+	 * 
+	 * The description cannot be null (but it can be empty).
 	 */
+	@NotNull(message = "The description of the property is required.")
 	private String description;
 
 	/**
-	 * Represents the monthly rental rate of the property (double).
+	 * Represents the monthly rental rate of the property (Double).
+	 * 
+	 * The rental rate cannot be null and it has to be a positive value (greater
+	 * than 0).
 	 */
-	private double rentalRate;
+	@NotNull(message = "The rental rate of the property is required.")
+	@Positive(message = "The rental rate of the property has to be a positive value.")
+	private Double rentalRate;
 
 	/**
-	 * Represents the size of the property in square meters (int).
+	 * Represents the size of the property in square meters (Integer).
+	 * 
+	 * The size cannot be null and it has to be a positive value (greater than 0).
 	 */
-	private int size;
+	@NotNull(message = "The size of the property is required.")
+	@Positive(message = "The size of the property has to be a positive value.")
+	private Integer size;
 
 	/**
-	 * Indicates whether the property is available (boolean).
+	 * Indicates whether the property is available (Boolean).
 	 * <ul>
 	 * <li>True - The property is available.</li>
 	 * <li>False - The property is not available.</li>
 	 * </ul>
+	 * 
+	 * The isAvailable flag cannot be null.
 	 */
-	private boolean isAvailable;
+	@NotNull(message = "You have to specify wether the property is available or not.")
+	private Boolean isAvailable;
 
 	/**
-	 * Represents the number of parking spaces that come with the property (int).
+	 * Represents the number of parking spaces that come with the property
+	 * (Integer).
+	 * 
+	 * The number of parking spots cannot be null and it has to be a positive value
+	 * (0 or greater).
 	 */
-	private int numberOfParkingSpots;
+	@NotNull(message = "The number of parking spots for the property is required.")
+	@Min(value = 0, message = "The number of parking spots for the property has to be a positive value.")
+	private Integer numberOfParkingSpots;
 
 	/**
 	 * Represents the list of photos of the property (List&lt;String&gt;).
 	 * 
 	 * The photos are stored in a separate table called "PropertyPhotos".
+	 * 
+	 * The list of photos cannot be null. There must be at least 1 photo of the
+	 * property and there can't be more than 15 photos of the property.
 	 */
+	@NotNull(message = "The photos of the property are required.")
+	@Size(min = 0, max = 15, message = "There has to be atleast 1 photo of the property and there cant be more than 15 photos of the property.")
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> photos;
 
 	/**
 	 * Represents the owner who is associated the property (Owner).
+	 * 
+	 * The id of the owner cannot be null.
 	 */
+	@NotNull(message = "You have to specify the owner of the property.")
 	@ManyToOne
 	@JoinColumn(name = "ownerId")
 	private Owner owner;
@@ -103,11 +141,11 @@ public class Property {
 	private List<Lease> leases;
 
 	public Property() {
-
+		this.photos = new ArrayList<>();
 	}
 
-	public Property(int propertyId, String name, String address, String description, double rentalRate, int size,
-			boolean isAvailable, int numberOfParkingSpots, List<String> photos, Owner owner, List<Lease> leases) {
+	public Property(int propertyId, String name, String address, String description, Double rentalRate, Integer size,
+			Boolean isAvailable, Integer numberOfParkingSpots, List<String> photos, Owner owner, List<Lease> leases) {
 		this.propertyId = propertyId;
 		this.name = name;
 		this.address = address;
@@ -116,7 +154,7 @@ public class Property {
 		this.size = size;
 		this.isAvailable = isAvailable;
 		this.numberOfParkingSpots = numberOfParkingSpots;
-		this.photos = photos;
+		this.photos = (photos != null) ? photos : new ArrayList<>();
 		this.owner = owner;
 		this.leases = leases;
 	}
@@ -153,35 +191,35 @@ public class Property {
 		this.description = description;
 	}
 
-	public double getRentalRate() {
+	public Double getRentalRate() {
 		return rentalRate;
 	}
 
-	public void setRentalRate(double rentalRate) {
+	public void setRentalRate(Double rentalRate) {
 		this.rentalRate = rentalRate;
 	}
 
-	public int getSize() {
+	public Integer getSize() {
 		return size;
 	}
 
-	public void setSize(int size) {
+	public void setSize(Integer size) {
 		this.size = size;
 	}
 
-	public boolean isAvailable() {
+	public Boolean isAvailable() {
 		return isAvailable;
 	}
 
-	public void setAvailable(boolean isAvailable) {
+	public void setAvailable(Boolean isAvailable) {
 		this.isAvailable = isAvailable;
 	}
 
-	public int getNumberOfParkingSpots() {
+	public Integer getNumberOfParkingSpots() {
 		return numberOfParkingSpots;
 	}
 
-	public void setNumberOfParkingSpots(int numberOfParkingSpots) {
+	public void setNumberOfParkingSpots(Integer numberOfParkingSpots) {
 		this.numberOfParkingSpots = numberOfParkingSpots;
 	}
 
@@ -213,9 +251,8 @@ public class Property {
 	public String toString() {
 		return "Property [propertyId=" + propertyId + ", name=" + name + ", address=" + address + ", description="
 				+ description + ", rentalRate=" + rentalRate + ", size=" + size + ", isAvailable=" + isAvailable
-				+ ", numberOfParkingSpots=" + numberOfParkingSpots + ", photos=" + String.join(", ", photos)
-				+ ", owner=" + owner + ", leases="
-				+ leases.stream().map(Lease::toString).collect(Collectors.joining(", ")) + "]";
+				+ ", numberOfParkingSpots=" + numberOfParkingSpots + ", photos=" + photos + ", owner=" + owner
+				+ ", leases=" + leases + "]";
 	}
 
 	@Override
@@ -234,11 +271,10 @@ public class Property {
 			return false;
 		Property other = (Property) obj;
 		return Objects.equals(address, other.address) && Objects.equals(description, other.description)
-				&& isAvailable == other.isAvailable && Objects.equals(leases, other.leases)
-				&& Objects.equals(name, other.name) && numberOfParkingSpots == other.numberOfParkingSpots
+				&& Objects.equals(isAvailable, other.isAvailable) && Objects.equals(leases, other.leases)
+				&& Objects.equals(name, other.name) && Objects.equals(numberOfParkingSpots, other.numberOfParkingSpots)
 				&& Objects.equals(owner, other.owner) && Objects.equals(photos, other.photos)
-				&& propertyId == other.propertyId
-				&& Double.doubleToLongBits(rentalRate) == Double.doubleToLongBits(other.rentalRate)
-				&& size == other.size;
+				&& propertyId == other.propertyId && Objects.equals(rentalRate, other.rentalRate)
+				&& Objects.equals(size, other.size);
 	}
 }
