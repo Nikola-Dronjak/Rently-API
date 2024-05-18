@@ -60,10 +60,10 @@ class OfficeSpaceControllerTest {
 		utilityLeases.add(new UtilityLease());
 
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
-		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", 400, 100, true, 20, photos, owner,
-				leases, 20, utilityLeases);
-		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", 300, 200, true, 20, null, owner,
-				null, 20, null);
+		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", (double) 400, 100, true, 20, photos,
+				owner, leases, 20, utilityLeases);
+		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", (double) 300, 200, true, 20, null,
+				owner, null, 20, null);
 	}
 
 	@AfterEach

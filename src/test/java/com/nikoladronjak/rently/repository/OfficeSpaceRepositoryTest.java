@@ -2,6 +2,7 @@ package com.nikoladronjak.rently.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,8 @@ class OfficeSpaceRepositoryTest {
 
 	Owner owner;
 
+	List<String> photos;
+
 	OfficeSpace officeSpace1;
 
 	OfficeSpace officeSpace2;
@@ -37,10 +40,15 @@ class OfficeSpaceRepositoryTest {
 	void setUp() throws Exception {
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
-		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", 400, 100, true, 20, null, owner, null,
-				20, null);
-		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", 300, 200, true, 20, null, owner,
-				null, 20, null);
+		photos = new ArrayList<String>();
+		photos.add("photo1");
+		photos.add("photo2");
+		photos.add("photo3");
+
+		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", (double) 400, 100, true, 20, photos,
+				owner, null, 20, null);
+		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", (double) 300, 200, true, 20, photos,
+				owner, null, 20, null);
 
 		ownerRepository.save(owner);
 	}
@@ -48,6 +56,8 @@ class OfficeSpaceRepositoryTest {
 	@AfterEach
 	void tearDown() throws Exception {
 		owner = null;
+
+		photos = null;
 
 		officeSpace1 = null;
 		officeSpace2 = null;
