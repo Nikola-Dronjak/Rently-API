@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,11 @@ import com.nikoladronjak.rently.repository.EventSpaceRepository;
 import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.OwnerRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -61,6 +69,20 @@ public class OwnerService {
 	 */
 	@Autowired
 	private OwnerRepository ownerRepository;
+
+	/**
+	 * Validator for validating Owner entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for OwnerService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public OwnerService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
 
 	/**
 	 * Retrieves all owners from the database and converts them to OwnerDTOs.
@@ -108,18 +130,27 @@ public class OwnerService {
 	 * @param ownerDTO The OwnerDTO containing the details of the owner that is
 	 *                 being added.
 	 * @return ResponseEntity containing the newly created OwnerDTO if successful,
-	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         ownerDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if the owner or customer with the provided email
 	 *                          already exists.
 	 */
 	public ResponseEntity<?> add(OwnerDTO ownerDTO) {
 		try {
+			Owner owner = convertFromDTO(ownerDTO);
+			Set<ConstraintViolation<Owner>> violations = validator.validate(owner);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Owner> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (ownerRepository.findByEmail(ownerDTO.getEmail()).isPresent()
 					|| customerRepository.findByEmail(ownerDTO.getEmail()).isPresent())
 				throw new RuntimeException("This user already exists.");
 
-			Owner owner = convertFromDTO(ownerDTO);
 			Owner newOwner = ownerRepository.save(owner);
 			OwnerDTO newOwnerDTO = convertToDTO(newOwner);
 			return ResponseEntity.ok(newOwnerDTO);
@@ -134,8 +165,8 @@ public class OwnerService {
 	 * @param id       The id of the owner that is being updated.
 	 * @param ownerDTO The OwnerDTO containing the updated details of the owner.
 	 * @return ResponseEntity containing the updated OwnerDTO if successful, or an
-	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         ownerDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if there is no owner with the given id, or if the
 	 *                          owner or customer with the provided email already
 	 *                          exists.
@@ -145,6 +176,16 @@ public class OwnerService {
 			Optional<Owner> ownerFromDb = ownerRepository.findById(id);
 			if (!ownerFromDb.isPresent())
 				throw new RuntimeException("There is no owner with the given id.");
+
+			Owner owner = convertFromDTO(ownerDTO);
+			Set<ConstraintViolation<Owner>> violations = validator.validate(owner);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Owner> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
 
 			if (!ownerFromDb.get().getEmail().equals(ownerDTO.getEmail())) {
 				Optional<Owner> existingOwner = ownerRepository.findByEmail(ownerDTO.getEmail());
@@ -157,7 +198,6 @@ public class OwnerService {
 				}
 			}
 
-			Owner owner = convertFromDTO(ownerDTO);
 			owner.setOwnerId(id);
 			Owner updatedOwner = ownerRepository.save(owner);
 			OwnerDTO updatedOwnerDTO = convertToDTO(updatedOwner);
