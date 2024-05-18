@@ -3,6 +3,7 @@ package com.nikoladronjak.rently.domain;
 import java.util.Objects;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a Owner entity. This
@@ -28,29 +29,49 @@ public class Owner {
 
 	/**
 	 * Represents the first name of the owner (String).
+	 * 
+	 * The first name cannot be null and it has to have at least 2 characters.
 	 */
+	@NotBlank(message = "The first name of the owner is required.")
+	@Size(min = 2, message = "The first name of the owner has to have at least 2 characters.")
 	private String firstName;
 
 	/**
 	 * Represents the last name of the owner (String).
+	 * 
+	 * The last name cannot be null and it has to have at least 2 characters.
 	 */
+	@NotBlank(message = "The last name of the owner is required.")
+	@Size(min = 2, message = "The last name of the owner has to have at least 2 characters.")
 	private String lastName;
 
 	/**
 	 * Represents the email address of the owner (String). The email address has to
 	 * be unique.
+	 * 
+	 * The email address cannot be null and it has to be a valid email address.
 	 */
+	@NotBlank(message = "The email address of the owner is required.")
+	@Email(message = "The email address of the owner must be valid.")
 	@Column(unique = true)
 	private String email;
 
 	/**
 	 * Represents the password of the owner (String).
+	 * 
+	 * The password cannot be null and it has to have at least 5 characters.
 	 */
+	@NotBlank(message = "The password of the owner is required.")
+	@Size(min = 5, message = "The password of the owner has to have at least 5 characters.")
 	private String password;
 
 	/**
 	 * Represents the phone number of the owner (String).
+	 * 
+	 * The phone number cannot be null and it has to have at least 10 characters.
 	 */
+	@NotBlank(message = "The phone number of the owner is required.")
+	@Size(min = 10, message = "The phone number of the owner has to have at least 10 characters.")
 	private String phoneNumber;
 
 	public Owner() {
