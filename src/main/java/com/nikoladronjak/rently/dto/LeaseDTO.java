@@ -3,11 +3,6 @@ package com.nikoladronjak.rently.dto;
 import java.util.GregorianCalendar;
 import java.util.Objects;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotNull;
-
 /**
  * Represents a data transfer object (DTO) for the Lease entity. This class is
  * used for transferring lease data between the different layers of the
@@ -24,19 +19,12 @@ public class LeaseDTO {
 
 	/**
 	 * Represents the id of the property that is being leased (Integer).
-	 * 
-	 * The id of the property cannot be null.
 	 */
-	@NotNull(message = "You have to specify the property which is being leased.")
 	private Integer propertyId;
 
 	/**
 	 * Represents the id of the customer who is leasing the property as a tenant
-	 * (Integer).
-	 * 
-	 * The id of the customer cannot be null.
 	 */
-	@NotNull(message = "You have to specify the customer who is leasing the property.")
 	private Integer customerId;
 
 	/**
@@ -49,24 +37,12 @@ public class LeaseDTO {
 
 	/**
 	 * Represents the start date of the lease (GregorianCalendar).
-	 * 
-	 * The start date cannot be null, has to be in the present or the future and has
-	 * to be in the following format: yyyy-mm-dd.
 	 */
-	@NotNull(message = "The start date of the lease is required.")
-	@FutureOrPresent(message = "The start date of the lease has to be in the present or in the future.")
-	@DateTimeFormat(pattern = "yyyy-mm-dd")
 	private GregorianCalendar startDate;
 
 	/**
 	 * Represents the end date of the lease (GregorianCalendar).
-	 * 
-	 * The end date cannot be null, has to be in the present or the future and has
-	 * to be in the following format: yyyy-mm-dd.
 	 */
-	@NotNull(message = "The end date of the lease is required.")
-	@FutureOrPresent(message = "The end date of the lease has to be in the present or in the future.")
-	@DateTimeFormat(pattern = "yyyy-mm-dd")
 	private GregorianCalendar endDate;
 
 	public LeaseDTO() {

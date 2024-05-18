@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a Lease entity. This
@@ -43,24 +46,42 @@ public class Lease {
 
 	/**
 	 * Represents the start date of the lease (GergorianCalendar).
+	 * 
+	 * The start date cannot be null, has to be in the present or the future and has
+	 * to be in the following format: yyyy-mm-dd.
 	 */
+	@NotNull(message = "The start date of the lease is required.")
+	@FutureOrPresent(message = "The start date of the lease has to be in the present or in the future.")
+	@DateTimeFormat(pattern = "yyyy-mm-dd")
 	private GregorianCalendar startDate;
 
 	/**
 	 * Represents the end date of the lease (GergorianCalendar).
+	 * 
+	 * The end date cannot be null, has to be in the present or the future and has
+	 * to be in the following format: yyyy-mm-dd.
 	 */
+	@NotNull(message = "The end date of the lease is required.")
+	@FutureOrPresent(message = "The end date of the lease has to be in the present or in the future.")
+	@DateTimeFormat(pattern = "yyyy-mm-dd")
 	private GregorianCalendar endDate;
 
 	/**
 	 * Represents the property which is associated with the lease (Property).
+	 * 
+	 * The id of the property cannot be null.
 	 */
+	@NotNull(message = "You have to specify the property which is being leased.")
 	@ManyToOne
 	@JoinColumn(name = "propertyId")
 	private Property property;
 
 	/**
 	 * Represents the customer who is associated with the lease (Customer).
+	 * 
+	 * The id of the customer cannot be null.
 	 */
+	@NotNull(message = "You have to specify the customer who is leasing the property.")
 	@ManyToOne
 	@JoinColumn(name = "customerId")
 	private Customer customer;
