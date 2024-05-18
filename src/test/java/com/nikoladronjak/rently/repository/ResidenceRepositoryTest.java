@@ -2,6 +2,7 @@ package com.nikoladronjak.rently.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,8 @@ class ResidenceRepositoryTest {
 
 	Owner owner;
 
+	List<String> photos;
+
 	Residence residence1;
 
 	Residence residence2;
@@ -38,10 +41,15 @@ class ResidenceRepositoryTest {
 	void setUp() throws Exception {
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
-		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", 300, 30, true, 0, null, owner, null, 1, 1,
-				HeatingType.Central, true, true);
-		residence2 = new Residence(2, "Apartement 2", "Studentski trg 1", "", 400, 40, true, 0, null, owner, null, 1, 1,
-				HeatingType.Central, true, true);
+		photos = new ArrayList<String>();
+		photos.add("photo1");
+		photos.add("photo2");
+		photos.add("photo3");
+
+		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", (double) 300, 30, true, 0, photos, owner,
+				null, 1, 1, HeatingType.Central, true, true);
+		residence2 = new Residence(2, "Apartement 2", "Studentski trg 1", "", (double) 400, 40, true, 0, photos, owner,
+				null, 1, 1, HeatingType.Central, true, true);
 
 		ownerRepository.save(owner);
 	}
@@ -49,6 +57,8 @@ class ResidenceRepositoryTest {
 	@AfterEach
 	void tearDown() throws Exception {
 		owner = null;
+
+		photos = null;
 
 		residence1 = null;
 		residence2 = null;

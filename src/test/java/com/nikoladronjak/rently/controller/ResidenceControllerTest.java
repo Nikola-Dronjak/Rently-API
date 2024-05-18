@@ -58,10 +58,10 @@ class ResidenceControllerTest {
 
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
-		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", 300, 30, true, 150, photos, owner, leases,
-				2, 2, HeatingType.Central, true, true);
-		residence2 = new Residence(2, "Apartement 2", "Studentski trg 1", "", 400, 40, true, 150, photos, owner, leases,
-				2, 2, HeatingType.Central, true, true);
+		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", (double) 300, 30, true, 150, photos, owner,
+				leases, 2, 2, HeatingType.Central, true, true);
+		residence2 = new Residence(2, "Apartement 2", "Studentski trg 1", "", (double) 400, 40, true, 150, photos,
+				owner, leases, 2, 2, HeatingType.Central, true, true);
 
 	}
 

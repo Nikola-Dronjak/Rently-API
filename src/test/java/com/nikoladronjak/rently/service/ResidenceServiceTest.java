@@ -37,6 +37,8 @@ class ResidenceServiceTest {
 
 	Owner owner;
 
+	List<String> photos;
+
 	EventSpace eventSpace1;
 
 	OfficeSpace officeSpace1;
@@ -71,11 +73,16 @@ class ResidenceServiceTest {
 	void setUp() throws Exception {
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
-		eventSpace1 = new EventSpace(1, "Lux Event Space 1", "Bulevar Osolobodjenja 13", "", 250, 100, true, 50, null,
-				owner, null, 200, true, true, null);
+		photos = new ArrayList<String>();
+		photos.add("photo1");
+		photos.add("photo2");
+		photos.add("photo3");
 
-		officeSpace1 = new OfficeSpace(1, "Office 1", "Bulevar Kralja Aleksandra 1", "", 400, 100, true, 30, null,
-				owner, null, 50, null);
+		eventSpace1 = new EventSpace(1, "Lux Event Space 1", "Bulevar Osolobodjenja 13", "", (double) 250, 100, true,
+				50, photos, owner, null, 200, true, true, null);
+
+		officeSpace1 = new OfficeSpace(1, "Office 1", "Bulevar Kralja Aleksandra 1", "", (double) 400, 100, true, 30,
+				photos, owner, null, 50, null);
 
 		lease = new Lease(1, 300, new GregorianCalendar(2024, 11, 12), new GregorianCalendar(2025, 11, 12), residence1,
 				null, null);
@@ -83,16 +90,18 @@ class ResidenceServiceTest {
 		leases = new ArrayList<Lease>();
 		leases.add(lease);
 
-		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", 300, 30, true, 0, null, owner, null, 1, 1,
-				HeatingType.Central, true, true);
-		residence2 = new Residence(2, "Apartement 2", "Studentski trg 1", "", 400, 40, true, 0, null, owner, null, 1, 1,
-				HeatingType.Central, true, true);
+		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", (double) 300, 30, true, 0, photos, owner,
+				null, 1, 1, HeatingType.Central, true, true);
+		residence2 = new Residence(2, "Apartement 2", "Studentski trg 1", "", (double) 400, 40, true, 0, photos, owner,
+				null, 1, 1, HeatingType.Central, true, true);
 
 	}
 
 	@AfterEach
 	void tearDown() throws Exception {
 		owner = null;
+
+		photos = null;
 
 		eventSpace1 = null;
 
