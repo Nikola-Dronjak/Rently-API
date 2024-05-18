@@ -3,9 +3,6 @@ package com.nikoladronjak.rently.dto;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-
 /**
  * Represents a data transfer object (DTO) for the EventSpace entity. This class
  * is used for transferring event space data between the different layers of the
@@ -22,12 +19,7 @@ public class EventSpaceDTO extends PropertyDTO {
 
 	/**
 	 * Represents the number of people that the event space can hold (Integer).
-	 * 
-	 * The capacity cannot be null and it has to be a positive value (greater than
-	 * 0).
 	 */
-	@NotNull(message = "The size of the event space is required.")
-	@Positive(message = "The size of the event space has to be a positive value.")
 	private Integer capacity;
 
 	/**
@@ -36,10 +28,7 @@ public class EventSpaceDTO extends PropertyDTO {
 	 * <li>True - The event space has a kitchen.</li>
 	 * <li>False - The event space doesn't have a kitchen.</li>
 	 * </ul>
-	 * 
-	 * The hasKitchen flag cannot be null.
 	 */
-	@NotNull(message = "You have to specify whether the event space has a kitchen or not.")
 	private Boolean hasKitchen;
 
 	/**
@@ -48,18 +37,12 @@ public class EventSpaceDTO extends PropertyDTO {
 	 * <li>True - The event space has a bar.</li>
 	 * <li>False - The event space doesn't have a bar.</li>
 	 * </ul>
-	 * 
-	 * The hasBar flag cannot be null.
 	 */
-	@NotNull(message = "You have to specify whether the event space has a bar or not.")
 	private Boolean hasBar;
 
 	/**
 	 * Represents the id of the event space's owner (Integer).
-	 * 
-	 * The id of the owner cannot be null.
 	 */
-	@NotNull(message = "You have to specify the owner of the event space.")
 	private Integer ownerId;
 
 	public EventSpaceDTO() {

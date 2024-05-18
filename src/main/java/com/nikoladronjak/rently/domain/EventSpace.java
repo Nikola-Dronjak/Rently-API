@@ -2,9 +2,9 @@ package com.nikoladronjak.rently.domain;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a EventSpace entity.
@@ -27,27 +27,38 @@ import jakarta.persistence.*;
 public class EventSpace extends Property {
 
 	/**
-	 * Represents the number of people that the event space can hold (int).
+	 * Represents the number of people that the event space can hold (Integer).
+	 * 
+	 * The capacity cannot be null and it has to be a positive value (greater than
+	 * 0).
 	 */
-	private int capacity;
+	@NotNull(message = "The size of the event space is required.")
+	@Positive(message = "The size of the event space has to be a positive value.")
+	private Integer capacity;
 
 	/**
-	 * Indicates whether the event space has a kitchen (boolean).
+	 * Indicates whether the event space has a kitchen (Boolean).
 	 * <ul>
 	 * <li>True - The event space has a kitchen.</li>
 	 * <li>False - The event space doesn't have a kitchen.</li>
 	 * </ul>
+	 * 
+	 * The hasKitchen flag cannot be null.
 	 */
-	private boolean hasKitchen;
+	@NotNull(message = "You have to specify whether the event space has a kitchen or not.")
+	private Boolean hasKitchen;
 
 	/**
-	 * Indicates whether the event space has a bar (boolean).
+	 * Indicates whether the event space has a bar (Boolean).
 	 * <ul>
 	 * <li>True - The event space has a bar.</li>
 	 * <li>False - The event space doesn't have a bar.</li>
 	 * </ul>
+	 * 
+	 * The hasBar flag cannot be null.
 	 */
-	private boolean hasBar;
+	@NotNull(message = "You have to specify whether the event space has a bar or not.")
+	private Boolean hasBar;
 
 	/**
 	 * Represents the list of utility leases with which the event space is
@@ -60,9 +71,9 @@ public class EventSpace extends Property {
 
 	}
 
-	public EventSpace(int propertyId, String name, String address, String description, double rentalRate, int size,
-			boolean isAvailable, int numberOfParkingSpots, List<String> photos, Owner owner, List<Lease> leases,
-			int capacity, boolean hasKitchen, boolean hasBar, List<UtilityLease> utilityLeases) {
+	public EventSpace(int propertyId, String name, String address, String description, Double rentalRate, Integer size,
+			Boolean isAvailable, Integer numberOfParkingSpots, List<String> photos, Owner owner, List<Lease> leases,
+			Integer capacity, Boolean hasKitchen, Boolean hasBar, List<UtilityLease> utilityLeases) {
 		super(propertyId, name, address, description, rentalRate, size, isAvailable, numberOfParkingSpots, photos,
 				owner, leases);
 		this.capacity = capacity;
@@ -71,27 +82,27 @@ public class EventSpace extends Property {
 		this.utilityLeases = utilityLeases;
 	}
 
-	public int getCapacity() {
+	public Integer getCapacity() {
 		return capacity;
 	}
 
-	public void setCapacity(int capacity) {
+	public void setCapacity(Integer capacity) {
 		this.capacity = capacity;
 	}
 
-	public boolean isHasKitchen() {
+	public Boolean isHasKitchen() {
 		return hasKitchen;
 	}
 
-	public void setHasKitchen(boolean hasKitchen) {
+	public void setHasKitchen(Boolean hasKitchen) {
 		this.hasKitchen = hasKitchen;
 	}
 
-	public boolean isHasBar() {
+	public Boolean isHasBar() {
 		return hasBar;
 	}
 
-	public void setHasBar(boolean hasBar) {
+	public void setHasBar(Boolean hasBar) {
 		this.hasBar = hasBar;
 	}
 
@@ -105,20 +116,15 @@ public class EventSpace extends Property {
 
 	@Override
 	public String toString() {
-		return "EventSpace [propertyId=" + getPropertyId() + ", name=" + getName() + ", address=" + getAddress()
-				+ ", description=" + getDescription() + ", rentalRate=" + getRentalRate() + ", size=" + getSize()
-				+ ", isAvailable=" + isAvailable() + ", numberOfParkingSpots=" + getNumberOfParkingSpots() + ", photos="
-				+ String.join(", ", getPhotos()) + ", owner=" + getOwner() + ", leases="
-				+ getLeases().stream().map(Lease::toString).collect(Collectors.joining(", ")) + "capacity=" + capacity
-				+ ", hasKitchen=" + hasKitchen + ", hasBar=" + hasBar + ", utilityLeases="
-				+ utilityLeases.stream().map(UtilityLease::toString).collect(Collectors.joining(", ")) + "]";
+		return "EventSpace [capacity=" + capacity + ", hasKitchen=" + hasKitchen + ", hasBar=" + hasBar
+				+ ", utilityLeases=" + utilityLeases + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(capacity, hasBar, hasKitchen);
+		result = prime * result + Objects.hash(capacity, hasBar, hasKitchen, utilityLeases);
 		return result;
 	}
 
@@ -131,6 +137,7 @@ public class EventSpace extends Property {
 		if (getClass() != obj.getClass())
 			return false;
 		EventSpace other = (EventSpace) obj;
-		return capacity == other.capacity && hasBar == other.hasBar && hasKitchen == other.hasKitchen;
+		return super.equals(other) && Objects.equals(capacity, other.capacity) && hasBar == other.hasBar
+				&& Objects.equals(hasKitchen, other.hasKitchen) && Objects.equals(utilityLeases, other.utilityLeases);
 	}
 }
