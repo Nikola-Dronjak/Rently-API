@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,11 @@ import com.nikoladronjak.rently.dto.CustomerDTO;
 import com.nikoladronjak.rently.repository.CustomerRepository;
 import com.nikoladronjak.rently.repository.LeaseRepository;
 import com.nikoladronjak.rently.repository.OwnerRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -46,6 +54,20 @@ public class CustomerService {
 	 */
 	@Autowired
 	private CustomerRepository customerRepository;
+
+	/**
+	 * Validator for validating Customer entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for CustomerService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public CustomerService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
 
 	/**
 	 * Retrieves all customers from the database and converts them to CustomerDTOs.
@@ -94,17 +116,26 @@ public class CustomerService {
 	 *                    that is being added.
 	 * @return ResponseEntity containing the newly created CustomerDTO if
 	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
-	 *         (400) if an exception occurs.
+	 *         (400) if the customerDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if the customer or owner with the provided email
 	 *                          already exists.
 	 */
 	public ResponseEntity<?> add(CustomerDTO customerDTO) {
 		try {
+			Customer customer = convertFromDTO(customerDTO);
+			Set<ConstraintViolation<Customer>> violations = validator.validate(customer);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Customer> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (customerRepository.findByEmail(customerDTO.getEmail()).isPresent()
 					|| ownerRepository.findByEmail(customerDTO.getEmail()).isPresent())
 				throw new RuntimeException("This user already exists.");
 
-			Customer customer = convertFromDTO(customerDTO);
 			Customer newCustomer = customerRepository.save(customer);
 			CustomerDTO newCustomerDTO = convertToDTO(newCustomer);
 			return ResponseEntity.ok(newCustomerDTO);
@@ -120,8 +151,8 @@ public class CustomerService {
 	 * @param customerDTO The CustomerDTO containing the updated details of the
 	 *                    customer.
 	 * @return ResponseEntity containing the updated CustomerDTO if successful, or
-	 *         an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         customerDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if there is no customer with the given id, or if the
 	 *                          customer or owner with the provided email already
 	 *                          exists.
@@ -131,6 +162,16 @@ public class CustomerService {
 			Optional<Customer> customerFromDb = customerRepository.findById(id);
 			if (!customerFromDb.isPresent())
 				throw new RuntimeException("There is no customer with the given id.");
+
+			Customer customer = convertFromDTO(customerDTO);
+			Set<ConstraintViolation<Customer>> violations = validator.validate(customer);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Customer> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
 
 			if (!customerFromDb.get().getEmail().equals(customerDTO.getEmail())) {
 				Optional<Customer> existingCustomer = customerRepository.findByEmail(customerDTO.getEmail());
@@ -143,7 +184,6 @@ public class CustomerService {
 				}
 			}
 
-			Customer customer = convertFromDTO(customerDTO);
 			customer.setCustomerId(id);
 			Customer updatedCustomer = customerRepository.save(customer);
 			CustomerDTO updatedCustomerDTO = convertToDTO(updatedCustomer);
