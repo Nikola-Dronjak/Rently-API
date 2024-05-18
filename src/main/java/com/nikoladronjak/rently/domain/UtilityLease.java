@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a UtilityLease
@@ -35,19 +36,30 @@ public class UtilityLease {
 
 	/**
 	 * Represents the monthly rental rate of the utility lease (double).
+	 * 
+	 * The rental rate cannot be null and it has to be a positive value (greater
+	 * than 0).
 	 */
-	private double rentalRate;
+	@NotNull(message = "The rental rate of the utility being leased is required.")
+	@Positive(message = "The rental rate of the utility being leased has to be a positive value.")
+	private Double rentalRate;
 
 	/**
 	 * Represents the utility that is associated with the utility lease (Utility).
+	 * 
+	 * The id of the utility cannot be null.
 	 */
+	@NotNull(message = "You have to specify the utility which is being leased.")
 	@ManyToOne
 	@JoinColumn(name = "utilityId")
 	private Utility utility;
 
 	/**
 	 * Represents the property that is associated with the utility lease (Property).
+	 * 
+	 * The id of the property cannot be null.
 	 */
+	@NotNull(message = "You have to specify the property for which the utility is being leased.")
 	@ManyToOne
 	@JoinColumn(name = "propertyId")
 	private Property property;
@@ -71,7 +83,7 @@ public class UtilityLease {
 
 	}
 
-	public UtilityLease(int utilityLeaseId, double rentalRate, Utility utility, Property property, List<Rent> rents) {
+	public UtilityLease(int utilityLeaseId, Double rentalRate, Utility utility, Property property, List<Rent> rents) {
 		this.utilityLeaseId = utilityLeaseId;
 		this.rentalRate = rentalRate;
 		this.utility = utility;
@@ -87,11 +99,11 @@ public class UtilityLease {
 		this.utilityLeaseId = utilityLeaseId;
 	}
 
-	public double getRentalRate() {
+	public Double getRentalRate() {
 		return rentalRate;
 	}
 
-	public void setRentalRate(double rentalRate) {
+	public void setRentalRate(Double rentalRate) {
 		this.rentalRate = rentalRate;
 	}
 
@@ -139,8 +151,7 @@ public class UtilityLease {
 		if (getClass() != obj.getClass())
 			return false;
 		UtilityLease other = (UtilityLease) obj;
-		return Objects.equals(property, other.property)
-				&& Double.doubleToLongBits(rentalRate) == Double.doubleToLongBits(other.rentalRate)
+		return Objects.equals(property, other.property) && Objects.equals(rentalRate, other.rentalRate)
 				&& Objects.equals(rents, other.rents) && Objects.equals(utility, other.utility)
 				&& utilityLeaseId == other.utilityLeaseId;
 	}
