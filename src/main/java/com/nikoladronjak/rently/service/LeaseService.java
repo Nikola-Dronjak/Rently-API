@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,11 @@ import com.nikoladronjak.rently.repository.LeaseRepository;
 import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.RentRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -70,6 +78,20 @@ public class LeaseService {
 	 */
 	@Autowired
 	private LeaseRepository leaseRepository;
+
+	/**
+	 * Validator for validating Lease entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for LeaseService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public LeaseService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
 
 	/**
 	 * Retrieves all leases from the database and converts them to LeaseDTOs.
@@ -157,8 +179,8 @@ public class LeaseService {
 	 * @param leaseDTO The LeaseDTO containing the details of the lease that is
 	 *                 being added.
 	 * @return ResponseEntity containing the newly created LeaseDTO if successful,
-	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         leaseDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no property for the given
@@ -198,6 +220,16 @@ public class LeaseService {
 			if (!customerFromDb.isPresent())
 				throw new RuntimeException("There is no customer for the given customerId.");
 
+			Lease lease = convertFromDTO(leaseDTO);
+			Set<ConstraintViolation<Lease>> violations = validator.validate(lease);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Lease> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (leaseDTO.getStartDate().after(leaseDTO.getEndDate()))
 				throw new RuntimeException("The start date of the lease has to be before the end date of the lease.");
 
@@ -209,7 +241,6 @@ public class LeaseService {
 			if (existingLease.isPresent())
 				throw new RuntimeException("This lease already exists.");
 
-			Lease lease = convertFromDTO(leaseDTO);
 			if (residenceFromDb.isPresent()) {
 				lease.setRentalRate(residenceFromDb.get().getRentalRate());
 				Residence residence = residenceFromDb.get();
@@ -244,8 +275,8 @@ public class LeaseService {
 	 * @param id       The id of the lease that is being updated.
 	 * @param leaseDTO The LeaseDTO containing the updated details of the lease.
 	 * @return ResponseEntity containing the updated LeaseDTO if successful, or an
-	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         leaseDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no lease with the given id.</li>
@@ -280,6 +311,16 @@ public class LeaseService {
 			if (!customerFromDb.isPresent())
 				throw new RuntimeException("There is no customer for the given customerId.");
 
+			Lease lease = convertFromDTO(leaseDTO);
+			Set<ConstraintViolation<Lease>> violations = validator.validate(lease);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Lease> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (leaseDTO.getStartDate().after(leaseDTO.getEndDate()))
 				throw new RuntimeException("The start date of the lease has to be before the end date of the lease.");
 
@@ -294,8 +335,30 @@ public class LeaseService {
 				}
 			}
 
-			Lease lease = convertFromDTO(leaseDTO);
-			lease.setLeaseId(id);
+			if (residenceFromDb.isPresent()) {
+				lease.setLeaseId(id);
+				lease.setRentalRate(residenceFromDb.get().getRentalRate());
+				Residence residence = residenceFromDb.get();
+				residence.setAvailable(false);
+				residenceRepository.save(residence);
+			}
+
+			if (eventSpaceFromDb.isPresent()) {
+				lease.setLeaseId(id);
+				lease.setRentalRate(eventSpaceFromDb.get().getRentalRate());
+				EventSpace eventSpace = eventSpaceFromDb.get();
+				eventSpace.setAvailable(false);
+				eventSpaceRepository.save(eventSpace);
+			}
+
+			if (officeSpaceFromDb.isPresent()) {
+				lease.setLeaseId(id);
+				lease.setRentalRate(officeSpaceFromDb.get().getRentalRate());
+				OfficeSpace officeSpace = officeSpaceFromDb.get();
+				officeSpace.setAvailable(false);
+				officeSpaceRepository.save(officeSpace);
+			}
+
 			Lease updatedLease = leaseRepository.save(lease);
 			LeaseDTO updatedLeaseDTO = convertToDTO(updatedLease);
 			return ResponseEntity.ok(updatedLeaseDTO);

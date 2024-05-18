@@ -1,28 +1,18 @@
 package com.nikoladronjak.rently.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nikoladronjak.rently.dto.LeaseDTO;
 import com.nikoladronjak.rently.service.LeaseService;
-
-import jakarta.validation.Valid;
 
 /**
  * Represents a controller class for handling HTTP requests related to Lease
@@ -99,10 +89,9 @@ public class LeaseController {
 	 * @param leaseDTO The LeaseDTO representing the lease that is being added.
 	 * @return ResponseEntity with HTTP status and response body containing the
 	 *         added lease if successful, or an error message.
-	 * @throws MethodArgumentNotValidException if the leaseDTO is not valid.
 	 */
 	@PostMapping
-	public ResponseEntity<?> addLease(@Valid @RequestBody LeaseDTO leaseDTO) {
+	public ResponseEntity<?> addLease(@RequestBody LeaseDTO leaseDTO) {
 		return leaseService.add(leaseDTO);
 	}
 
@@ -113,10 +102,9 @@ public class LeaseController {
 	 * @param leaseDTO The LeaseDTO representing the updated lease information.
 	 * @return ResponseEntity with HTTP status and response body containing the
 	 *         updated lease if successful, or an error message.
-	 * @throws MethodArgumentNotValidException if the leaseDTO is not valid.
 	 */
 	@PutMapping("/{id}")
-	ResponseEntity<?> updateLease(@PathVariable Integer id, @Valid @RequestBody LeaseDTO leaseDTO) {
+	ResponseEntity<?> updateLease(@PathVariable Integer id, @RequestBody LeaseDTO leaseDTO) {
 		return leaseService.update(id, leaseDTO);
 	}
 
@@ -130,24 +118,5 @@ public class LeaseController {
 	@DeleteMapping("/{id}")
 	ResponseEntity<?> deleteLease(@PathVariable Integer id) {
 		return leaseService.delete(id);
-	}
-
-	/**
-	 * Creates custom error messages for validation exceptions.
-	 *
-	 * @param e MethodArgumentNotValidException thrown during validation.
-	 * @return ResponseEntity with HTTP status and response body containing
-	 *         validation error details.
-	 */
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	private ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException e) {
-		Map<String, String> errors = new HashMap<String, String>();
-		e.getBindingResult().getAllErrors().forEach((error) -> {
-			String fieldName = ((FieldError) error).getField();
-			String errorMessage = error.getDefaultMessage();
-			errors.put(fieldName, errorMessage);
-		});
-		return ResponseEntity.badRequest().body(errors);
 	}
 }
