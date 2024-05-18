@@ -2,10 +2,6 @@ package com.nikoladronjak.rently.dto;
 
 import java.util.Objects;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-
 /**
  * Represents a data transfer object (DTO) for the Customer entity. This class
  * is used for transferring customer data between the different layers of the
@@ -22,38 +18,22 @@ public class CustomerDTO {
 
 	/**
 	 * Represents the first name of the customer (String).
-	 * 
-	 * The first name cannot be null and it has to have at least 2 characters.
 	 */
-	@NotBlank(message = "The first name of the customer is required.")
-	@Size(min = 2, message = "The first name of the customer has to have at least 2 characters.")
 	private String firstName;
 
 	/**
 	 * Represents the last name of the customer (String).
-	 * 
-	 * The last name cannot be null and it has to have at least 2 characters.
 	 */
-	@NotBlank(message = "The last name of the customer is required.")
-	@Size(min = 2, message = "The last name of the customer has to have at least 2 characters.")
 	private String lastName;
 
 	/**
 	 * Represents the email address of the customer (String).
-	 * 
-	 * The email address cannot be null and it has to be a valid email address.
 	 */
-	@NotBlank(message = "The email address of the customer is required.")
-	@Email(message = "The email address of the customer must be valid.")
 	private String email;
 
 	/**
 	 * Represents the password of the customer (String).
-	 * 
-	 * The password cannot be null and it has to have at least 5 characters.
 	 */
-	@NotBlank(message = "The password of the customer is required.")
-	@Size(min = 5, message = "The password of the customer has to have at least 5 characters.")
 	private String password;
 
 	public CustomerDTO() {
