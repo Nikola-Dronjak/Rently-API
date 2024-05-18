@@ -30,6 +30,8 @@ class UtilityLeaseRepositoryTest {
 
 	Owner owner;
 
+	List<String> photos;
+
 	OfficeSpace officeSpace1;
 
 	OfficeSpace officeSpace2;
@@ -56,24 +58,26 @@ class UtilityLeaseRepositoryTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		List<String> photos = new ArrayList<String>();
-		photos.add("photo1");
-		photos.add("photo2");
 
 		utility1 = new Utility(1, "Microphone", "", null);
 		utility2 = new Utility(2, "Projector", "", null);
 
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
-		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", 300, 150, true, 30, photos, owner,
-				null, 100, null);
-		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", 250, 120, true, 20, photos, owner,
-				null, 90, null);
+		photos = new ArrayList<String>();
+		photos.add("photo1");
+		photos.add("photo2");
+		photos.add("photo3");
 
-		utilityLease1 = new UtilityLease(1, 50, utility1, officeSpace1, null);
-		utilityLease2 = new UtilityLease(2, 60, utility2, officeSpace1, null);
-		utilityLease3 = new UtilityLease(3, 50, utility1, officeSpace2, null);
-		utilityLease4 = new UtilityLease(4, 60, utility2, officeSpace2, null);
+		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", (double) 300, 150, true, 30, photos,
+				owner, null, 100, null);
+		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", (double) 250, 120, true, 20, photos,
+				owner, null, 90, null);
+
+		utilityLease1 = new UtilityLease(1, (double) 50, utility1, officeSpace1, null);
+		utilityLease2 = new UtilityLease(2, (double) 60, utility2, officeSpace1, null);
+		utilityLease3 = new UtilityLease(3, (double) 50, utility1, officeSpace2, null);
+		utilityLease4 = new UtilityLease(4, (double) 60, utility2, officeSpace2, null);
 
 		utilityRepository.save(utility1);
 		utilityRepository.save(utility2);
@@ -91,6 +95,8 @@ class UtilityLeaseRepositoryTest {
 		officeSpace2 = null;
 
 		owner = null;
+
+		photos = null;
 
 		utilityLease1 = null;
 		utilityLease2 = null;
