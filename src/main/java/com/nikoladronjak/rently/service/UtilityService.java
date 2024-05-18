@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,11 @@ import com.nikoladronjak.rently.domain.UtilityLease;
 import com.nikoladronjak.rently.dto.UtilityDTO;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
 import com.nikoladronjak.rently.repository.UtilityRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -37,6 +45,20 @@ public class UtilityService {
 	 */
 	@Autowired
 	private UtilityRepository utilityRepository;
+
+	/**
+	 * Validator for validating Utility entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for UtilityService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public UtilityService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
 
 	/**
 	 * Retrieves all utilities from the database and converts them to UtilityDTOs.
@@ -84,16 +106,25 @@ public class UtilityService {
 	 * @param utilityDTO The UtilityDTO containing the details of the utility that
 	 *                   is being added.
 	 * @return ResponseEntity containing the newly created UtilityDTO if successful,
-	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         utilityDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if a utility with the provided name already exists.
 	 */
 	public ResponseEntity<?> add(UtilityDTO utilityDTO) {
 		try {
+			Utility utility = convertFromDTO(utilityDTO);
+			Set<ConstraintViolation<Utility>> violations = validator.validate(utility);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Utility> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (utilityRepository.findByName(utilityDTO.getName()).isPresent())
 				throw new RuntimeException("This utility already exists.");
 
-			Utility utility = convertFromDTO(utilityDTO);
 			Utility newUtility = utilityRepository.save(utility);
 			UtilityDTO newUtilityDTO = convertToDTO(newUtility);
 			return ResponseEntity.ok(newUtilityDTO);
@@ -109,8 +140,8 @@ public class UtilityService {
 	 * @param utilityDTO The UtilityDTO containing the updated details of the
 	 *                   utility.
 	 * @return ResponseEntity containing the updated UtilityDTO if successful, or an
-	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         utilityDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if there is no utility with the given id, or if a
 	 *                          utility with the provided name already exists.
 	 */
@@ -120,6 +151,16 @@ public class UtilityService {
 			if (!utilityFromDb.isPresent())
 				throw new RuntimeException("There is no utility with the given id.");
 
+			Utility utility = convertFromDTO(utilityDTO);
+			Set<ConstraintViolation<Utility>> violations = validator.validate(utility);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Utility> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (!utilityFromDb.get().getName().equals(utilityDTO.getName())) {
 				Optional<Utility> existingUtility = utilityRepository.findByName(utilityDTO.getName());
 				if (existingUtility.isPresent() && existingUtility.get().getUtilityId() != id) {
@@ -127,7 +168,6 @@ public class UtilityService {
 				}
 			}
 
-			Utility utility = convertFromDTO(utilityDTO);
 			utility.setUtilityId(id);
 			Utility updatedUtility = utilityRepository.save(utility);
 			UtilityDTO updatedUtilityDTO = convertToDTO(updatedUtility);
