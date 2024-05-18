@@ -72,20 +72,20 @@ class OwnerServiceTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", 300, 30, true, 0, null, owner1, null, 1, 1,
-				HeatingType.Central, true, true);
+		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", (double) 300, 30, true, 0, null, owner1,
+				null, 1, 1, HeatingType.Central, true, true);
 
 		residences = new ArrayList<Residence>();
 		residences.add(residence1);
 
-		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", 300, 200, true, 20, null, owner1, null,
-				50, true, true, null);
+		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", (double) 300, 200, true, 20, null,
+				owner1, null, 50, true, true, null);
 
 		eventSpaces = new ArrayList<EventSpace>();
 		eventSpaces.add(eventSpace1);
 
-		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", 400, 100, true, 20, null, owner1,
-				null, 20, null);
+		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", (double) 400, 100, true, 20, null,
+				owner1, null, 20, null);
 
 		officeSpaces = new ArrayList<OfficeSpace>();
 		officeSpaces.add(officeSpace1);
