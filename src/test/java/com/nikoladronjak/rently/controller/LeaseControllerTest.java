@@ -62,10 +62,10 @@ class LeaseControllerTest {
 		photos.add("photo1");
 		photos.add("photo2");
 
-		residence1 = new Residence(1, "Lux Apartment", "Jove Ilica 154", "", 400, 70, true, 2, photos, owner, null, 2,
-				2, HeatingType.Central, true, true);
-		residence2 = new Residence(2, "Lux Apartment", "Studentski trg 1", "", 300, 60, true, 2, photos, owner, null, 2,
-				1, HeatingType.Central, true, true);
+		residence1 = new Residence(1, "Lux Apartment", "Jove Ilica 154", "", (double) 400, 70, true, 2, photos, owner,
+				null, 2, 2, HeatingType.Central, true, true);
+		residence2 = new Residence(2, "Lux Apartment", "Studentski trg 1", "", (double) 300, 60, true, 2, photos, owner,
+				null, 2, 1, HeatingType.Central, true, true);
 
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 

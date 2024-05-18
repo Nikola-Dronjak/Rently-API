@@ -94,20 +94,20 @@ class LeaseServiceTest {
 		photos.add("photo1");
 		photos.add("photo2");
 
-		residence1 = new Residence(1, "Lux Apartment 1", "Jove Ilica 154", "", 400, 70, true, 2, photos, owner, null, 2,
-				2, HeatingType.Central, true, true);
-		residence2 = new Residence(2, "Lux Apartment 2", "Studentski trg 1", "", 300, 60, false, 2, photos, owner, null,
-				2, 1, HeatingType.Central, true, true);
+		residence1 = new Residence(1, "Lux Apartment 1", "Jove Ilica 154", "", (double) 400, 70, true, 2, photos, owner,
+				null, 2, 2, HeatingType.Central, true, true);
+		residence2 = new Residence(2, "Lux Apartment 2", "Studentski trg 1", "", (double) 300, 60, false, 2, photos,
+				owner, null, 2, 1, HeatingType.Central, true, true);
 
-		eventSpace1 = new EventSpace(1, "Lux Event Space 1", "Bulevar Osolobodjenja 13", "", 250, 100, true, 50, photos,
-				owner, null, 200, true, true, null);
-		eventSpace2 = new EventSpace(2, "Lux Event Space 2", "Milentija Popovica 5", "", 350, 200, false, 50, photos,
-				owner, null, 200, true, true, null);
+		eventSpace1 = new EventSpace(1, "Lux Event Space 1", "Bulevar Osolobodjenja 13", "", (double) 250, 100, true,
+				50, photos, owner, null, 200, true, true, null);
+		eventSpace2 = new EventSpace(2, "Lux Event Space 2", "Milentija Popovica 5", "", (double) 350, 200, false, 50,
+				photos, owner, null, 200, true, true, null);
 
-		officeSpace1 = new OfficeSpace(1, "Office 1", "Bulevar Kralja Aleksandra 1", "", 400, 100, true, 30, photos,
-				owner, null, 50, null);
-		officeSpace2 = new OfficeSpace(2, "Office 2", "Bulevar Kralja Aleksandra 2", "", 500, 100, false, 30, photos,
-				owner, null, 50, null);
+		officeSpace1 = new OfficeSpace(1, "Office 1", "Bulevar Kralja Aleksandra 1", "", (double) 400, 100, true, 30,
+				photos, owner, null, 50, null);
+		officeSpace2 = new OfficeSpace(2, "Office 2", "Bulevar Kralja Aleksandra 2", "", (double) 500, 100, false, 30,
+				photos, owner, null, 50, null);
 
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
@@ -118,10 +118,10 @@ class LeaseServiceTest {
 		rents = new ArrayList<Rent>();
 		rents.add(rent);
 
-		lease1 = new Lease(1, 400, new GregorianCalendar(), new GregorianCalendar(2025, 12, 31), residence1, customer,
-				null);
-		lease2 = new Lease(2, 400, new GregorianCalendar(), new GregorianCalendar(2025, 12, 31), residence2, customer,
-				null);
+		lease1 = new Lease(1, 400, new GregorianCalendar(2025, 10, 15), new GregorianCalendar(2025, 12, 31), residence1,
+				customer, null);
+		lease2 = new Lease(2, 400, new GregorianCalendar(2025, 10, 15), new GregorianCalendar(2025, 12, 31), residence2,
+				customer, null);
 	}
 
 	@AfterEach

@@ -26,11 +26,13 @@ import com.nikoladronjak.rently.domain.Residence;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class LeaseRepositoryTest {
 
+	Owner owner;
+
+	List<String> photos;
+
 	Residence residence1;
 
 	Residence residence2;
-
-	Owner owner;
 
 	Customer customer;
 
@@ -52,23 +54,24 @@ class LeaseRepositoryTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		List<String> photos = new ArrayList<String>();
+		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
+
+		photos = new ArrayList<String>();
 		photos.add("photo1");
 		photos.add("photo2");
+		photos.add("photo3");
 
-		residence1 = new Residence(1, "Lux Apartment", "Jove Ilica 154", "", 400, 70, true, 2, photos, owner, null, 2,
-				2, HeatingType.Central, true, true);
-		residence2 = new Residence(2, "Lux Apartment", "Studentski trg 1", "", 300, 60, true, 2, photos, owner, null, 2,
-				1, HeatingType.Central, true, true);
-
-		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
+		residence1 = new Residence(1, "Lux Apartment", "Jove Ilica 154", "", (double) 400, 70, true, 2, photos, owner,
+				null, 2, 2, HeatingType.Central, true, true);
+		residence2 = new Residence(2, "Lux Apartment", "Studentski trg 1", "", (double) 300, 60, true, 2, photos, owner,
+				null, 2, 1, HeatingType.Central, true, true);
 
 		customer = new Customer(1, "Mika", "Mikic", "mika@gmail.com", "mika123", null);
 
-		lease1 = new Lease(1, 400, new GregorianCalendar(), new GregorianCalendar(2025, 11, 31), residence1, customer,
-				null);
-		lease2 = new Lease(2, 400, new GregorianCalendar(), new GregorianCalendar(2025, 11, 31), residence2, customer,
-				null);
+		lease1 = new Lease(1, 400, new GregorianCalendar(2025, 10, 15), new GregorianCalendar(2025, 11, 31), residence1,
+				customer, null);
+		lease2 = new Lease(2, 400, new GregorianCalendar(2025, 10, 15), new GregorianCalendar(2025, 11, 31), residence2,
+				customer, null);
 
 		ownerRepository.save(owner);
 		residenceRepository.save(residence1);
@@ -78,10 +81,12 @@ class LeaseRepositoryTest {
 
 	@AfterEach
 	void tearDown() throws Exception {
+		owner = null;
+
+		photos = null;
+
 		residence1 = null;
 		residence2 = null;
-
-		owner = null;
 
 		customer = null;
 
