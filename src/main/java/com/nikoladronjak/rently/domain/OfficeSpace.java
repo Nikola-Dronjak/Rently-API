@@ -2,9 +2,9 @@ package com.nikoladronjak.rently.domain;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a OfficeSpace entity.
@@ -27,9 +27,14 @@ import jakarta.persistence.*;
 public class OfficeSpace extends Property {
 
 	/**
-	 * Represents the number of people that the office space can hold (int).
+	 * Represents the number of people that the office space can hold (Integer).
+	 * 
+	 * The capacity cannot be null and it has to be a positive value (greater than
+	 * 0).
 	 */
-	private int capacity;
+	@NotNull(message = "The size of the office space is required.")
+	@Positive(message = "The size of the office space has to be a positive value.")
+	private Integer capacity;
 
 	/**
 	 * Represents the list of utility leases with which the office space is
@@ -42,20 +47,20 @@ public class OfficeSpace extends Property {
 
 	}
 
-	public OfficeSpace(int propertyId, String name, String address, String description, double rentalRate, int size,
-			boolean isAvailable, int numberOfParkingSpots, List<String> photos, Owner owner, List<Lease> leases,
-			int capacity, List<UtilityLease> utilityLeases) {
+	public OfficeSpace(int propertyId, String name, String address, String description, Double rentalRate, Integer size,
+			Boolean isAvailable, Integer numberOfParkingSpots, List<String> photos, Owner owner, List<Lease> leases,
+			Integer capacity, List<UtilityLease> utilityLeases) {
 		super(propertyId, name, address, description, rentalRate, size, isAvailable, numberOfParkingSpots, photos,
 				owner, leases);
 		this.capacity = capacity;
 		this.utilityLeases = utilityLeases;
 	}
 
-	public int getCapacity() {
+	public Integer getCapacity() {
 		return capacity;
 	}
 
-	public void setCapacity(int capacity) {
+	public void setCapacity(Integer capacity) {
 		this.capacity = capacity;
 	}
 
@@ -69,13 +74,7 @@ public class OfficeSpace extends Property {
 
 	@Override
 	public String toString() {
-		return "OfficeSpace [propertyId=" + getPropertyId() + ", name=" + getName() + ", address=" + getAddress()
-				+ ", description=" + getDescription() + ", rentalRate=" + getRentalRate() + ", size=" + getSize()
-				+ ", isAvailable=" + isAvailable() + ", numberOfParkingSpots=" + getNumberOfParkingSpots() + ", photos="
-				+ String.join(", ", getPhotos()) + ", owner=" + getOwner() + ", leases="
-				+ getLeases().stream().map(Lease::toString).collect(Collectors.joining(", ")) + "capacity=" + capacity
-				+ ", utilityLeases="
-				+ utilityLeases.stream().map(UtilityLease::toString).collect(Collectors.joining(", ")) + "]";
+		return "OfficeSpace [capacity=" + capacity + ", utilityLeases=" + utilityLeases + "]";
 	}
 
 	@Override
@@ -95,6 +94,7 @@ public class OfficeSpace extends Property {
 		if (getClass() != obj.getClass())
 			return false;
 		OfficeSpace other = (OfficeSpace) obj;
-		return capacity == other.capacity && Objects.equals(utilityLeases, other.utilityLeases);
+		return super.equals(other) && Objects.equals(capacity, other.capacity)
+				&& Objects.equals(utilityLeases, other.utilityLeases);
 	}
 }
