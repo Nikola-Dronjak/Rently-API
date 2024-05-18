@@ -1,8 +1,11 @@
 package com.nikoladronjak.rently.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,11 @@ import com.nikoladronjak.rently.repository.LeaseRepository;
 import com.nikoladronjak.rently.repository.RentRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -53,6 +61,20 @@ public class RentService {
 	 */
 	@Autowired
 	private RentRepository rentRepository;
+
+	/**
+	 * Validator for validating Rent entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for RentService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public RentService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
 
 	/**
 	 * Retrieves all rents from the database and converts them to RentDTOs.
@@ -100,8 +122,8 @@ public class RentService {
 	 * @param rentDTO The RentDTO containing the details of the rent that is being
 	 *                added.
 	 * @return ResponseEntity containing the newly created RentDTO if successful, or
-	 *         an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         rentDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no lease for the given leaseId.</li>
@@ -120,6 +142,14 @@ public class RentService {
 			if (residenceRepository.findById(leaseFromDb.get().getProperty().getPropertyId()).isPresent()) {
 				double leaseRentalRate = leaseFromDb.get().getRentalRate();
 				Rent rent = convertFromDTO(rentDTO);
+				Set<ConstraintViolation<Rent>> violations = validator.validate(rent);
+				if (!violations.isEmpty()) {
+					Map<String, String> errors = new HashMap<>();
+					for (ConstraintViolation<Rent> violation : violations) {
+						errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+					}
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+				}
 				rent.setTotalRent(leaseRentalRate);
 				rent.setUtilityLeases(new ArrayList<UtilityLease>());
 				Rent newRent = rentRepository.save(rent);
@@ -136,11 +166,20 @@ public class RentService {
 				sumOfUtilityLeaseRentalRates += utilityLeaseFromDb.get().getRentalRate();
 			}
 
+			Rent rent = convertFromDTO(rentDTO);
+			Set<ConstraintViolation<Rent>> violations = validator.validate(rent);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Rent> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			Optional<Rent> existingRent = rentRepository.findByLease_LeaseId(rentDTO.getLeaseId());
 			if (existingRent.isPresent())
 				throw new RuntimeException("This rent already exists.");
 
-			Rent rent = convertFromDTO(rentDTO);
 			rent.setTotalRent(sumOfUtilityLeaseRentalRates + leaseRentalRate);
 			Rent newRent = rentRepository.save(rent);
 			for (Integer utilityLeaseId : rentDTO.getUtilityLeaseIds()) {
@@ -162,8 +201,8 @@ public class RentService {
 	 * @param id      The id of the rent that is being updated.
 	 * @param rentDTO The RentDTO containing the updated details of the rent.
 	 * @return ResponseEntity containing the updated RentDTO if successful, or an
-	 *         error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         error message with HttpStatus.BAD_REQUEST status (400) if the rentDTO
+	 *         is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no rent for the given id.</li>
@@ -193,6 +232,16 @@ public class RentService {
 				sumOfUtilityLeaseRentalRates += utilityLeaseFromDb.get().getRentalRate();
 			}
 
+			Rent rent = convertFromDTO(rentDTO);
+			Set<ConstraintViolation<Rent>> violations = validator.validate(rent);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Rent> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			Optional<Rent> existingRent = rentRepository.findByLease_LeaseId(rentDTO.getLeaseId());
 			if (existingRent.isPresent()) {
 				if (existingRent.get().getRentId() != id) {
@@ -200,7 +249,6 @@ public class RentService {
 				}
 			}
 
-			Rent rent = convertFromDTO(rentDTO);
 			rent.setRentId(id);
 			rent.setTotalRent(sumOfUtilityLeaseRentalRates + leaseRentalRate);
 			for (UtilityLease utilityLease : rentFromDb.get().getUtilityLeases()) {
