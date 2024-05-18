@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a Utility entity.
@@ -31,13 +32,20 @@ public class Utility {
 
 	/**
 	 * Represents the name of the utility (String). The name has to be unique.
+	 * 
+	 * The name cannot be null and it has to have at least 5 characters.
 	 */
+	@NotBlank(message = "The name of the utility is required.")
+	@Size(min = 5, message = "The name of the utility has to have at least 5 characters.")
 	@Column(unique = true)
 	private String name;
 
 	/**
 	 * Represents the description of the utility (String).
+	 * 
+	 * The description cannot be null (but it can be empty).
 	 */
+	@NotNull(message = "The description of the utility is required.")
 	private String description;
 
 	/**
