@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,11 @@ import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.OwnerRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -69,6 +77,20 @@ public class EventSpaceService {
 	private EventSpaceRepository eventSpaceRepository;
 
 	/**
+	 * Validator for validating EventSpace entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for EventSpaceService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public EventSpaceService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
+
+	/**
 	 * Retrieves all event spaces from the database and converts them to
 	 * EventSpaceDTOs.
 	 * 
@@ -117,7 +139,7 @@ public class EventSpaceService {
 	 *                      space that is being added.
 	 * @return ResponseEntity containing the newly created EventSpaceDTO if
 	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
-	 *         (400) if an exception occurs.
+	 *         (400) if the eventSpaceDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if there is no owner with the given ownerId, or if a
 	 *                          property with the provided address already exists.
 	 */
@@ -126,12 +148,21 @@ public class EventSpaceService {
 			if (ownerRepository.findById(eventSpaceDTO.getOwnerId()).isEmpty())
 				throw new RuntimeException("There is no owner with the given id.");
 
+			EventSpace eventSpace = convertFromDTO(eventSpaceDTO);
+			Set<ConstraintViolation<EventSpace>> violations = validator.validate(eventSpace);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<EventSpace> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (residenceRepository.findByAddress(eventSpaceDTO.getAddress()).isPresent()
 					|| eventSpaceRepository.findByAddress(eventSpaceDTO.getAddress()).isPresent()
 					|| officeSpaceRepository.findByAddress(eventSpaceDTO.getAddress()).isPresent())
 				throw new RuntimeException("This property already exists.");
 
-			EventSpace eventSpace = convertFromDTO(eventSpaceDTO);
 			EventSpace newEventSpace = eventSpaceRepository.save(eventSpace);
 			EventSpaceDTO newEventSpaceDTO = convertToDTO(newEventSpace);
 			return ResponseEntity.ok(newEventSpaceDTO);
@@ -147,9 +178,9 @@ public class EventSpaceService {
 	 * @param id            The id of the event space that is being updated.
 	 * @param eventSpaceDTO The EventSpaceDTO containing the updated details of the
 	 *                      event space.
-	 * @return ResponseEntity containing the updated EventSpaceDTO if successful, or
-	 *         an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 * @return ResponseEntity containing the newly created EventSpaceDTO if
+	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
+	 *         (400) if the eventSpaceDTO is not valid, or if an exception occurs
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no event space with the given id.</li>
@@ -167,6 +198,16 @@ public class EventSpaceService {
 			if (ownerRepository.findById(eventSpaceDTO.getOwnerId()).isEmpty())
 				throw new RuntimeException("There is no owner with the given id.");
 
+			EventSpace eventSpace = convertFromDTO(eventSpaceDTO);
+			Set<ConstraintViolation<EventSpace>> violations = validator.validate(eventSpace);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<EventSpace> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (!eventSpaceFromDb.get().getAddress().equals(eventSpaceDTO.getAddress())) {
 				if (residenceRepository.findByAddress(eventSpaceDTO.getAddress()).isPresent()
 						|| eventSpaceRepository.findByAddress(eventSpaceDTO.getAddress()).isPresent()
@@ -175,7 +216,6 @@ public class EventSpaceService {
 				}
 			}
 
-			EventSpace eventSpace = convertFromDTO(eventSpaceDTO);
 			eventSpace.setPropertyId(id);
 			EventSpace updatedEventSpace = eventSpaceRepository.save(eventSpace);
 			EventSpaceDTO updatedEventSpaceDTO = convertToDTO(updatedEventSpace);
@@ -272,7 +312,9 @@ public class EventSpaceService {
 		eventSpace.setCapacity(eventSpaceDTO.getCapacity());
 		eventSpace.setHasKitchen(eventSpaceDTO.getHasKitchen());
 		eventSpace.setHasBar(eventSpaceDTO.getHasBar());
-		eventSpace.setOwner(ownerRepository.findById(eventSpaceDTO.getOwnerId()).get());
+		if (eventSpaceDTO.getOwnerId() != null) {
+			eventSpace.setOwner(ownerRepository.findById(eventSpaceDTO.getOwnerId()).get());
+		}
 
 		return eventSpace;
 	}
