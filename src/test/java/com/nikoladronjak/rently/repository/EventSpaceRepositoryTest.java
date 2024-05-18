@@ -2,6 +2,7 @@ package com.nikoladronjak.rently.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,8 @@ class EventSpaceRepositoryTest {
 
 	Owner owner;
 
+	List<String> photos;
+
 	EventSpace eventSpace1;
 
 	EventSpace eventSpace2;
@@ -37,10 +40,15 @@ class EventSpaceRepositoryTest {
 	void setUp() throws Exception {
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
-		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", 300, 200, true, 20, null, owner, null,
-				50, true, true, null);
-		eventSpace2 = new EventSpace(2, "Event Space 2", "Studentski trg 1", "", 300, 200, true, 20, null, owner, null,
-				50, true, true, null);
+		photos = new ArrayList<String>();
+		photos.add("photo1");
+		photos.add("photo2");
+		photos.add("photo3");
+
+		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", (double) 300, 200, true, 20, photos,
+				owner, null, 50, true, true, null);
+		eventSpace2 = new EventSpace(2, "Event Space 2", "Studentski trg 1", "", (double) 300, 200, true, 20, photos,
+				owner, null, 50, true, true, null);
 
 		ownerRepository.save(owner);
 	}
@@ -48,6 +56,8 @@ class EventSpaceRepositoryTest {
 	@AfterEach
 	void tearDown() throws Exception {
 		owner = null;
+
+		photos = null;
 
 		eventSpace1 = null;
 		eventSpace2 = null;

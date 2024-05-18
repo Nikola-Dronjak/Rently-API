@@ -60,10 +60,10 @@ class EventSpaceControllerTest {
 		utilityLeases.add(new UtilityLease());
 
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
-		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", 300, 200, true, 20, photos, owner,
-				leases, 50, true, true, utilityLeases);
-		eventSpace2 = new EventSpace(2, "Event Space 2", "Studentski trg 1", "", 300, 200, true, 20, null, owner, null,
-				50, true, true, null);
+		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", (double) 300, 200, true, 20, photos,
+				owner, leases, 50, true, true, utilityLeases);
+		eventSpace2 = new EventSpace(2, "Event Space 2", "Studentski trg 1", "", (double) 300, 200, true, 20, null,
+				owner, null, 50, true, true, null);
 
 	}
 

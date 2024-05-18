@@ -39,6 +39,8 @@ class EventSpaceServiceTest {
 
 	Owner owner;
 
+	List<String> photos;
+
 	Residence residence1;
 
 	OfficeSpace officeSpace1;
@@ -80,11 +82,16 @@ class EventSpaceServiceTest {
 	void setUp() throws Exception {
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
-		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", 300, 30, true, 0, null, owner, null, 1, 1,
-				HeatingType.Central, true, true);
+		photos = new ArrayList<String>();
+		photos.add("photo1");
+		photos.add("photo2");
+		photos.add("photo3");
 
-		officeSpace1 = new OfficeSpace(1, "Office 1", "Bulevar Kralja Aleksandra 1", "", 400, 100, true, 30, null,
-				owner, null, 50, null);
+		residence1 = new Residence(1, "Apartement 1", "Jove Ilica 154", "", (double) 300, 30, true, 0, photos, owner,
+				null, 1, 1, HeatingType.Central, true, true);
+
+		officeSpace1 = new OfficeSpace(1, "Office 1", "Bulevar Kralja Aleksandra 1", "", (double) 400, 100, true, 30,
+				photos, owner, null, 50, null);
 
 		lease = new Lease(1, 300, new GregorianCalendar(2024, 11, 12), new GregorianCalendar(2025, 11, 12), eventSpace1,
 				null, null);
@@ -92,21 +99,23 @@ class EventSpaceServiceTest {
 		leases = new ArrayList<Lease>();
 		leases.add(lease);
 
-		utilityLease = new UtilityLease(1, 0, null, eventSpace1, null);
+		utilityLease = new UtilityLease(1, (double) 0, null, eventSpace1, null);
 
 		utilityLeases = new ArrayList<UtilityLease>();
 		utilityLeases.add(utilityLease);
 
-		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", 300, 200, true, 20, null, owner, null,
-				50, true, true, null);
-		eventSpace2 = new EventSpace(2, "Event Space 2", "Studentski trg 1", "", 300, 200, true, 20, null, owner, null,
-				50, true, true, null);
+		eventSpace1 = new EventSpace(1, "Event Space 1", "Jove Ilica 154", "", (double) 300, 200, true, 20, photos,
+				owner, null, 50, true, true, null);
+		eventSpace2 = new EventSpace(2, "Event Space 2", "Studentski trg 1", "", (double) 300, 200, true, 20, photos,
+				owner, null, 50, true, true, null);
 
 	}
 
 	@AfterEach
 	void tearDown() throws Exception {
 		owner = null;
+
+		photos = null;
 
 		residence1 = null;
 
