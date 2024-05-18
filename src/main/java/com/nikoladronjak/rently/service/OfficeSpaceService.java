@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,11 @@ import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.OwnerRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -69,6 +77,20 @@ public class OfficeSpaceService {
 	private OfficeSpaceRepository officeSpaceRepository;
 
 	/**
+	 * Validator for validating OfficeSpace entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for OfficeSpaceService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public OfficeSpaceService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
+
+	/**
 	 * Retrieves all office spaces from the database and converts them to
 	 * OfficeSpaceDTOs.
 	 * 
@@ -117,7 +139,7 @@ public class OfficeSpaceService {
 	 *                       space that is being added.
 	 * @return ResponseEntity containing the newly created OfficeSpaceDTO if
 	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
-	 *         (400) if an exception occurs.
+	 *         (400) if the officeSpaceDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if there is no owner with the given ownerId, or if a
 	 *                          property with the provided address already exists.
 	 */
@@ -126,12 +148,21 @@ public class OfficeSpaceService {
 			if (ownerRepository.findById(officeSpaceDTO.getOwnerId()).isEmpty())
 				throw new RuntimeException("There is no owner with the given id.");
 
+			OfficeSpace officeSpace = convertFromDTO(officeSpaceDTO);
+			Set<ConstraintViolation<OfficeSpace>> violations = validator.validate(officeSpace);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<OfficeSpace> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (residenceRepository.findByAddress(officeSpaceDTO.getAddress()).isPresent()
 					|| eventSpaceRepository.findByAddress(officeSpaceDTO.getAddress()).isPresent()
 					|| officeSpaceRepository.findByAddress(officeSpaceDTO.getAddress()).isPresent())
 				throw new RuntimeException("This property already exists.");
 
-			OfficeSpace officeSpace = convertFromDTO(officeSpaceDTO);
 			OfficeSpace newOfficeSpace = officeSpaceRepository.save(officeSpace);
 			OfficeSpaceDTO newOfficeSpaceDTO = convertToDTO(newOfficeSpace);
 			return ResponseEntity.ok(newOfficeSpaceDTO);
@@ -148,8 +179,8 @@ public class OfficeSpaceService {
 	 * @param officeSpaceDTO The OfficeSpaceDTO containing the updated details of
 	 *                       the office space.
 	 * @return ResponseEntity containing the updated OfficeSpaceDTO if successful,
-	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         officeSpaceDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no office space with the given id.</li>
@@ -167,6 +198,16 @@ public class OfficeSpaceService {
 			if (ownerRepository.findById(officeSpaceDTO.getOwnerId()).isEmpty())
 				throw new RuntimeException("There is no owner with the given id.");
 
+			OfficeSpace officeSpace = convertFromDTO(officeSpaceDTO);
+			Set<ConstraintViolation<OfficeSpace>> violations = validator.validate(officeSpace);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<OfficeSpace> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (!officeSpaceFromDb.get().getAddress().equals(officeSpaceDTO.getAddress())) {
 				if (residenceRepository.findByAddress(officeSpaceDTO.getAddress()).isPresent()
 						|| eventSpaceRepository.findByAddress(officeSpaceDTO.getAddress()).isPresent()
@@ -175,7 +216,6 @@ public class OfficeSpaceService {
 				}
 			}
 
-			OfficeSpace officeSpace = convertFromDTO(officeSpaceDTO);
 			officeSpace.setPropertyId(id);
 			OfficeSpace updatedOfficeSpace = officeSpaceRepository.save(officeSpace);
 			OfficeSpaceDTO updatedOfficeSpaceDTO = convertToDTO(updatedOfficeSpace);
@@ -268,7 +308,9 @@ public class OfficeSpaceService {
 		officeSpace.setNumberOfParkingSpots(officeSpaceDTO.getNumberOfParkingSpots());
 		officeSpace.setPhotos(officeSpaceDTO.getPhotos());
 		officeSpace.setCapacity(officeSpaceDTO.getCapacity());
-		officeSpace.setOwner(ownerRepository.findById(officeSpaceDTO.getOwnerId()).get());
+		if (officeSpaceDTO.getOwnerId() != null) {
+			officeSpace.setOwner(ownerRepository.findById(officeSpaceDTO.getOwnerId()).get());
+		}
 
 		return officeSpace;
 	}
