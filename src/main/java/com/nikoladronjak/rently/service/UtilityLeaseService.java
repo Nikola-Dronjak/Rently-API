@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,11 @@ import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.RentRepository;
 import com.nikoladronjak.rently.repository.UtilityLeaseRepository;
 import com.nikoladronjak.rently.repository.UtilityRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -63,6 +71,20 @@ public class UtilityLeaseService {
 	 */
 	@Autowired
 	private UtilityLeaseRepository utilityLeaseRepository;
+
+	/**
+	 * Validator for validating UtilityLease entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for UtilityLeaseService. Initializes the validator using
+	 * a ValidatorFactory.
+	 */
+	public UtilityLeaseService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
 
 	/**
 	 * Retrieves all utility leases from the database and converts them to
@@ -156,7 +178,7 @@ public class UtilityLeaseService {
 	 *                        utility lease that is being added.
 	 * @return ResponseEntity containing the newly created UtilityLeaseDTO if
 	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
-	 *         (400) if an exception occurs.
+	 *         (400) if the utilityLeaseDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no utility for the given
@@ -169,7 +191,6 @@ public class UtilityLeaseService {
 	 */
 	public ResponseEntity<?> add(UtilityLeaseDTO utilityLeaseDTO) {
 		try {
-
 			Optional<Utility> utilityFromDb = utilityRepository.findById(utilityLeaseDTO.getUtilityId());
 			if (!utilityFromDb.isPresent())
 				throw new RuntimeException("There is no utility for the given utilityId.");
@@ -180,13 +201,22 @@ public class UtilityLeaseService {
 					|| !officeSpaceFromDb.isPresent() && eventSpaceFromDb.isEmpty())
 				throw new RuntimeException("The property has to be either an event space or an office space.");
 
+			UtilityLease utilityLease = convertFromDTO(utilityLeaseDTO);
+			Set<ConstraintViolation<UtilityLease>> violations = validator.validate(utilityLease);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<UtilityLease> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			Optional<UtilityLease> existingUtilityLease = utilityLeaseRepository
 					.findByUtility_UtilityIdAndProperty_PropertyId(utilityLeaseDTO.getUtilityId(),
 							utilityLeaseDTO.getPropertyId());
 			if (existingUtilityLease.isPresent())
 				throw new RuntimeException("This utility lease already exists.");
 
-			UtilityLease utilityLease = convertFromDTO(utilityLeaseDTO);
 			UtilityLease newUtilityLease = utilityLeaseRepository.save(utilityLease);
 			UtilityLeaseDTO newUtilityLeaseDTO = convertToDTO(newUtilityLease);
 			return ResponseEntity.ok(newUtilityLeaseDTO);
@@ -203,8 +233,8 @@ public class UtilityLeaseService {
 	 * @param utilityLeaseDTO The UtilityLeaseDTO containing the updated details of
 	 *                        the utility lease.
 	 * @return ResponseEntity containing the updated UtilityLeaseDTO if successful,
-	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         or an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         utilityLeaseDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no utility lease for the given id.</li>
@@ -232,6 +262,16 @@ public class UtilityLeaseService {
 					|| !officeSpaceFromDb.isPresent() && eventSpaceFromDb.isEmpty())
 				throw new RuntimeException("The property has to be either an event space or an office space.");
 
+			UtilityLease utilityLease = convertFromDTO(utilityLeaseDTO);
+			Set<ConstraintViolation<UtilityLease>> violations = validator.validate(utilityLease);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<UtilityLease> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			Optional<UtilityLease> existingUtilityLease = utilityLeaseRepository
 					.findByUtility_UtilityIdAndProperty_PropertyId(utilityLeaseDTO.getUtilityId(),
 							utilityLeaseDTO.getPropertyId());
@@ -241,7 +281,6 @@ public class UtilityLeaseService {
 				}
 			}
 
-			UtilityLease utilityLease = convertFromDTO(utilityLeaseDTO);
 			utilityLease.setUtilityLeaseId(id);
 			UtilityLease updatedUtilityLease = utilityLeaseRepository.save(utilityLease);
 			UtilityLeaseDTO updatedUtilityLeaseDTO = convertToDTO(updatedUtilityLease);
