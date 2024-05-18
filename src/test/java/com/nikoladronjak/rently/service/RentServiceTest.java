@@ -96,18 +96,18 @@ class RentServiceTest {
 
 		customer = new Customer(1, "Mika", "Mikic", "mika@gmail.com", "mika123", null);
 
-		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", 300, 150, true, 30, photos, owner,
-				null, 100, null);
-		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", 250, 120, true, 20, photos, owner,
-				null, 90, null);
+		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", (double) 300, 150, true, 30, photos,
+				owner, null, 100, null);
+		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", (double) 250, 120, true, 20, photos,
+				owner, null, 90, null);
 
 		lease1 = new Lease(1, 200, new GregorianCalendar(2024, 11, 12), new GregorianCalendar(2025, 11, 12),
 				officeSpace1, customer, null);
 		lease2 = new Lease(2, 250, new GregorianCalendar(2024, 11, 12), new GregorianCalendar(2025, 11, 12),
 				officeSpace2, customer, null);
 
-		utilityLease1 = new UtilityLease(1, 40, utility1, officeSpace1, rents);
-		utilityLease2 = new UtilityLease(2, 60, utility2, officeSpace1, rents);
+		utilityLease1 = new UtilityLease(1, (double) 40, utility1, officeSpace1, rents);
+		utilityLease2 = new UtilityLease(2, (double) 60, utility2, officeSpace1, rents);
 
 		utilityLeases = new ArrayList<UtilityLease>();
 		utilityLeases.add(utilityLease1);
@@ -202,7 +202,12 @@ class RentServiceTest {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.empty());
 
-		ResponseEntity<?> response = rentService.add(convertToDTO(rent1));
+		RentDTO rentDTO = new RentDTO();
+		rentDTO.setLeaseId(lease1.getLeaseId());
+		rentDTO.setUtilityLeaseIds(List.of(1));
+		rentDTO.setTotalRent((double) 300);
+
+		ResponseEntity<?> response = rentService.add(rentDTO);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 		assertEquals("There is no utility lease for the utilityLeaseId: " + 1, response.getBody());
@@ -262,7 +267,12 @@ class RentServiceTest {
 		when(leaseRepository.findById(1)).thenReturn(Optional.of(lease1));
 		when(utilityLeaseRepository.findById(1)).thenReturn(Optional.empty());
 
-		ResponseEntity<?> response = rentService.update(1, convertToDTO(rent1));
+		RentDTO rentDTO = new RentDTO();
+		rentDTO.setLeaseId(lease1.getLeaseId());
+		rentDTO.setUtilityLeaseIds(List.of(1));
+		rentDTO.setTotalRent((double) 300);
+
+		ResponseEntity<?> response = rentService.update(1, rentDTO);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 		assertEquals("There is no utility lease for the utilityLeaseId: " + 1, response.getBody());

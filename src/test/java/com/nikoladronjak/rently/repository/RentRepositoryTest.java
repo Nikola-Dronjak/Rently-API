@@ -34,6 +34,8 @@ class RentRepositoryTest {
 
 	Owner owner;
 
+	List<String> photos;
+
 	Customer customer;
 
 	OfficeSpace officeSpace1;
@@ -75,29 +77,31 @@ class RentRepositoryTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		List<String> photos = new ArrayList<String>();
-		photos.add("photo1");
-		photos.add("photo2");
 
 		utility1 = new Utility(1, "Microphone", "", null);
 		utility2 = new Utility(2, "Projector", "", null);
 
 		owner = new Owner(1, "Pera", "Peric", "pera@gmail.com", "pera123", "1234567890");
 
+		photos = new ArrayList<String>();
+		photos.add("photo1");
+		photos.add("photo2");
+		photos.add("photo3");
+
 		customer = new Customer(1, "Mika", "Mikic", "mika@gmail.com", "mika123", null);
 
-		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", 300, 150, true, 30, photos, owner,
-				null, 100, null);
-		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", 250, 120, true, 20, photos, owner,
-				null, 90, null);
+		officeSpace1 = new OfficeSpace(1, "Office Space 1", "Jove Ilica 154", "", (double) 300, 150, true, 30, photos,
+				owner, null, 100, null);
+		officeSpace2 = new OfficeSpace(2, "Office Space 2", "Studentski trg 1", "", (double) 250, 120, true, 20, photos,
+				owner, null, 90, null);
 
 		lease1 = new Lease(1, 200, new GregorianCalendar(2024, 11, 12), new GregorianCalendar(2025, 11, 12),
 				officeSpace1, customer, null);
 		lease2 = new Lease(2, 250, new GregorianCalendar(2024, 11, 12), new GregorianCalendar(2025, 11, 12),
 				officeSpace2, customer, null);
 
-		utilityLease1 = new UtilityLease(1, 40, utility1, officeSpace1, null);
-		utilityLease2 = new UtilityLease(2, 60, utility2, officeSpace1, null);
+		utilityLease1 = new UtilityLease(1, (double) 40, utility1, officeSpace1, null);
+		utilityLease2 = new UtilityLease(2, (double) 60, utility2, officeSpace1, null);
 
 		List<UtilityLease> utilityLeases = new ArrayList<UtilityLease>();
 		utilityLeases.add(utilityLease1);
@@ -124,6 +128,8 @@ class RentRepositoryTest {
 		utility2 = null;
 
 		owner = null;
+
+		photos = null;
 
 		customer = null;
 
