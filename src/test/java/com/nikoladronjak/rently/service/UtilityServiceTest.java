@@ -46,7 +46,7 @@ class UtilityServiceTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		utilityLease = new UtilityLease(1, 50, utility1, null, null);
+		utilityLease = new UtilityLease(1, (double) 50, utility1, null, null);
 
 		utilityLeases = new ArrayList<UtilityLease>();
 		utilityLeases.add(utilityLease);
