@@ -1,7 +1,10 @@
 package com.nikoladronjak.rently.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,11 @@ import com.nikoladronjak.rently.repository.LeaseRepository;
 import com.nikoladronjak.rently.repository.OfficeSpaceRepository;
 import com.nikoladronjak.rently.repository.OwnerRepository;
 import com.nikoladronjak.rently.repository.ResidenceRepository;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * Represents a service class responsible for handling the business logic
@@ -59,6 +67,20 @@ public class ResidenceService {
 	 */
 	@Autowired
 	private ResidenceRepository residenceRepository;
+
+	/**
+	 * Validator for validating Residence entities.
+	 */
+	private final Validator validator;
+
+	/**
+	 * Default constructor for ResidenceService. Initializes the validator using a
+	 * ValidatorFactory.
+	 */
+	public ResidenceService() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		this.validator = factory.getValidator();
+	}
 
 	/**
 	 * Retrieves all residences from the database and converts them to
@@ -108,7 +130,7 @@ public class ResidenceService {
 	 *                     that is being added.
 	 * @return ResponseEntity containing the newly created ResidenceDTO if
 	 *         successful, or an error message with HttpStatus.BAD_REQUEST status
-	 *         (400) if an exception occurs.
+	 *         (400) if the residenceDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if there is no owner with the given ownerId, or if a
 	 *                          property with the provided address already exists.
 	 */
@@ -117,12 +139,21 @@ public class ResidenceService {
 			if (ownerRepository.findById(residenceDTO.getOwnerId()).isEmpty())
 				throw new RuntimeException("There is no owner with the given id.");
 
+			Residence residence = convertFromDTO(residenceDTO);
+			Set<ConstraintViolation<Residence>> violations = validator.validate(residence);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Residence> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (residenceRepository.findByAddress(residenceDTO.getAddress()).isPresent()
 					|| eventSpaceRepository.findByAddress(residenceDTO.getAddress()).isPresent()
 					|| officeSpaceRepository.findByAddress(residenceDTO.getAddress()).isPresent())
 				throw new RuntimeException("This property already exists.");
 
-			Residence residence = convertFromDTO(residenceDTO);
 			Residence newResidence = residenceRepository.save(residence);
 			ResidenceDTO newResidenceDTO = convertToDTO(newResidence);
 			return ResponseEntity.ok(newResidenceDTO);
@@ -138,8 +169,8 @@ public class ResidenceService {
 	 * @param residenceDTO The ResidenceDTO containing the updated details of the
 	 *                     residence.
 	 * @return ResponseEntity containing the updated ResidenceDTO if successful, or
-	 *         an error message with HttpStatus.BAD_REQUEST status (400) if an
-	 *         exception occurs.
+	 *         an error message with HttpStatus.BAD_REQUEST status (400) if the
+	 *         residenceDTO is not valid, or if an exception occurs.
 	 * @throws RuntimeException if:
 	 *                          <ul>
 	 *                          <li>There is no residence with the given id.</li>
@@ -157,6 +188,16 @@ public class ResidenceService {
 			if (ownerRepository.findById(residenceDTO.getOwnerId()).isEmpty())
 				throw new RuntimeException("There is no owner with the given id.");
 
+			Residence residence = convertFromDTO(residenceDTO);
+			Set<ConstraintViolation<Residence>> violations = validator.validate(residence);
+			if (!violations.isEmpty()) {
+				Map<String, String> errors = new HashMap<>();
+				for (ConstraintViolation<Residence> violation : violations) {
+					errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+				}
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+			}
+
 			if (!residenceFromDb.get().getAddress().equals(residenceDTO.getAddress())) {
 				if (residenceRepository.findByAddress(residenceDTO.getAddress()).isPresent()
 						|| eventSpaceRepository.findByAddress(residenceDTO.getAddress()).isPresent()
@@ -165,7 +206,6 @@ public class ResidenceService {
 				}
 			}
 
-			Residence residence = convertFromDTO(residenceDTO);
 			residence.setPropertyId(id);
 			Residence updatedResidence = residenceRepository.save(residence);
 			ResidenceDTO updatedResidenceDTO = convertToDTO(updatedResidence);
@@ -255,7 +295,9 @@ public class ResidenceService {
 		residence.setHeatingType(residenceDTO.getHeatingType());
 		residence.setPetFriendly(residenceDTO.getIsPetFriendly());
 		residence.setFurnished(residenceDTO.getIsFurnished());
-		residence.setOwner(ownerRepository.findById(residenceDTO.getOwnerId()).get());
+		if (residenceDTO.getOwnerId() != null) {
+			residence.setOwner(ownerRepository.findById(residenceDTO.getOwnerId()).get());
+		}
 
 		return residence;
 	}
