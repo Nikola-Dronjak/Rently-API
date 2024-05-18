@@ -1,9 +1,11 @@
 package com.nikoladronjak.rently.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 /**
  * Represents a domain class for storing information about a Rent entity. This
@@ -46,25 +48,31 @@ public class Rent {
 	 * <li>utilityLeaseId - The id of the utility lease associated with the
 	 * rent.</li>
 	 * </ul>
+	 * 
+	 * The list of utility lease ids cannot be null.
 	 */
+	@NotNull(message = "You have to specify the utility leases which are part of the rent.")
 	@ManyToMany(mappedBy = "rents", fetch = FetchType.EAGER)
 	private List<UtilityLease> utilityLeases;
 
 	/**
 	 * Represents the lease which is associated with the rent (Lease).
+	 * 
+	 * The id of the lease cannot be null.
 	 */
+	@NotNull(message = "You have to specify the lease from which the rent is derived.")
 	@ManyToOne
 	@JoinColumn(name = "leaseId")
 	private Lease lease;
 
 	public Rent() {
-
+		this.utilityLeases = new ArrayList<UtilityLease>();
 	}
 
 	public Rent(int rentId, double totalRent, List<UtilityLease> utilityLeases, Lease lease) {
 		this.rentId = rentId;
 		this.totalRent = totalRent;
-		this.utilityLeases = utilityLeases;
+		this.utilityLeases = (utilityLeases == null) ? utilityLeases : new ArrayList<UtilityLease>();
 		this.lease = lease;
 	}
 

@@ -3,8 +3,6 @@ package com.nikoladronjak.rently.dto;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.validation.constraints.NotNull;
-
 /**
  * Represents a data transfer object (DTO) for the Rent entity. This class is
  * used for transferring rent data between the different layers of the
@@ -22,10 +20,7 @@ public class RentDTO {
 	/**
 	 * Represents the id of the lease for which the rent is being calculated
 	 * (Integer).
-	 * 
-	 * The id of the lease cannot be null.
 	 */
-	@NotNull(message = "You have to specify the lease from which the rent is derived.")
 	private Integer leaseId;
 
 	/**
@@ -38,10 +33,7 @@ public class RentDTO {
 	/**
 	 * Represents the list of all the utility leases that are being leased
 	 * (List&lt;Integer&gt;).
-	 * 
-	 * The list of utility lease ids cannot be null.
 	 */
-	@NotNull(message = "You have to specify the utility leases which are part of the rent.")
 	private List<Integer> utilityLeaseIds;
 
 	public RentDTO() {
